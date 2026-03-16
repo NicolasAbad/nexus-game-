@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXUS: Lords of Dimensions</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app">
+
+    <!-- ── TOP HUD ── -->
+    <header id="hud">
+      <div id="hud-title">NEXUS</div>
+      <div id="hud-resources">
+        <div class="resource-block">
+          <span class="resource-label">Energía Nexus</span>
+          <span id="res-energy" class="resource-value">0</span>
+        </div>
+        <div class="resource-block">
+          <span class="resource-label">Producción</span>
+          <span id="res-production" class="resource-value">0/s</span>
+        </div>
+      </div>
+      <div id="hud-actions">
+        <button id="btn-save"  class="btn-hud">Guardar</button>
+        <button id="btn-reset" class="btn-hud btn-danger">Reset</button>
+      </div>
+    </header>
+
+    <!-- ── MAIN LAYOUT ── -->
+    <div id="main-layout">
+
+      <!-- Left: Nexo + stats + habilidades -->
+      <aside id="panel-left">
+        <div id="nexo-container">
+          <div id="nexo-subtitle">El Nexo</div>
+          <button id="btn-nexo" class="btn-nexo">
+            <div id="nexo-icon">⬡</div>
+            <div id="nexo-label">+<span id="click-power">1</span> Energía</div>
+          </button>
+          <div id="nexo-stats">
+            <div class="stat-row">
+              <span>Producción total</span>
+              <span id="stat-total-prod">0/s</span>
+            </div>
+            <div class="stat-row">
+              <span>Energía total ganada</span>
+              <span id="stat-total-earned">0</span>
+            </div>
+            <div class="stat-row">
+              <span>Límite offline</span>
+              <span id="stat-offline-cap">2h</span>
+            </div>
+            <div class="stat-row">
+              <span>Eficiencia offline</span>
+              <span id="stat-offline-eff">50%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Habilidades activas -->
+        <div id="abilities-container">
+          <div class="abilities-title">Habilidades</div>
+          <div id="abilities-list"></div>
+        </div>
+      </aside>
+
+      <!-- Right: Shop -->
+      <main id="panel-right">
+
+        <!-- Tutorial banner -->
+        <div id="tutorial-banner">
+          <span id="tutorial-text">⬡ Hacé click en el Nexo para generar tu primera Energía</span>
+        </div>
+
+        <!-- Buy mode selector -->
+        <div id="buy-mode-bar">
+          <span class="buy-mode-label">Comprar</span>
+          <div id="buy-mode-selector"></div>
+        </div>
+
+        <!-- Portales -->
+        <section id="section-portals" class="shop-section">
+          <h2 class="section-title">Portales Dimensionales</h2>
+          <div id="portals-list"></div>
+        </section>
+
+        <!-- Mejoras -->
+        <section id="section-upgrades" class="shop-section" style="display:none">
+          <h2 class="section-title">
+            Mejoras
+            <span class="new-badge" id="upgrades-badge">NUEVO</span>
+          </h2>
+          <div id="upgrades-list"></div>
+        </section>
+
+      </main>
+    </div>
+
+    <!-- ── NOTIFICACIONES ── -->
+    <div id="notifications"></div>
+
+    <!-- ── MODAL OFFLINE ── -->
+    <div id="offline-modal" style="display:none">
+      <div id="offline-modal-box">
+        <div id="offline-modal-title">¡Bienvenido de vuelta!</div>
+        <div id="offline-modal-body"></div>
+        <button id="offline-modal-close" class="btn-primary">Recolectar</button>
+      </div>
+    </div>
+
+    <!-- ── MODAL DE CONFIRMACIÓN ── -->
+    <div id="confirm-modal" style="display:none">
+      <div id="confirm-modal-box">
+        <div id="confirm-modal-message"></div>
+        <div id="confirm-modal-actions">
+          <button id="confirm-modal-cancel" class="btn-secondary">Cancelar</button>
+          <button id="confirm-modal-ok"     class="btn-danger-solid">Confirmar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PARTÍCULAS DE CLICK ── -->
+    <div id="click-particles"></div>
+
+  </div>
+
+  <!--
+    break_infinity.js — maneja números arbitrariamente grandes.
+    PARA CAPACITOR: descargá el archivo y guardalo en libs/break_infinity.min.js
+    Descarga: https://cdn.jsdelivr.net/npm/break_infinity.js/src/break_infinity.min.js
+  -->
+  <script
+    src="libs/break_infinity.min.js"
+    onerror="
+      var s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/break_infinity.js/src/break_infinity.min.js';
+      document.head.appendChild(s);
+    "
+  ></script>
+
+  <script type="module" src="js/game.js"></script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+# Claude Code settings
+.claude/
+
+# Dependencies
+node_modules/
+
+# Build output (Stage 18+)
+dist/
+build/
+
+# Capacitor (Stage 18+)
+android/
+ios/
+.capacitor/
+
+# Editor
+.vscode/
+.idea/
+*.suo
+*.user
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Env
+.env
+.env.local
