@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" id="html-root">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,17 +14,18 @@
       <div id="hud-title">NEXUS</div>
       <div id="hud-resources">
         <div class="resource-block">
-          <span class="resource-label">Energía Nexus</span>
+          <span class="resource-label" data-i18n="ui.res.energy">Energía Nexus</span>
           <span id="res-energy" class="resource-value">0</span>
         </div>
         <div class="resource-block">
-          <span class="resource-label">Producción</span>
+          <span class="resource-label" data-i18n="ui.res.production">Producción</span>
           <span id="res-production" class="resource-value">0/s</span>
         </div>
       </div>
       <div id="hud-actions">
-        <button id="btn-save"  class="btn-hud">Guardar</button>
-        <button id="btn-reset" class="btn-hud btn-danger">Reset</button>
+        <button id="btn-lang"  class="btn-hud" data-i18n="ui.hud.lang">🌐 EN</button>
+        <button id="btn-save"  class="btn-hud" data-i18n="ui.hud.save">Guardar</button>
+        <button id="btn-reset" class="btn-hud btn-danger" data-i18n="ui.hud.reset">Reset</button>
       </div>
     </header>
 
@@ -34,26 +35,26 @@
       <!-- Left: Nexo + stats + habilidades -->
       <aside id="panel-left">
         <div id="nexo-container">
-          <div id="nexo-subtitle">El Nexo</div>
+          <div id="nexo-subtitle" data-i18n="ui.nexo.subtitle">El Nexo</div>
           <button id="btn-nexo" class="btn-nexo">
             <div id="nexo-icon">⬡</div>
-            <div id="nexo-label">+<span id="click-power">1</span> Energía</div>
+            <div id="nexo-label">+<span id="click-power">1</span> <span data-i18n="ui.nexo.energy">Energía</span></div>
           </button>
           <div id="nexo-stats">
             <div class="stat-row">
-              <span>Producción total</span>
+              <span data-i18n="ui.stat.total_prod">Producción total</span>
               <span id="stat-total-prod">0/s</span>
             </div>
             <div class="stat-row">
-              <span>Energía total ganada</span>
+              <span data-i18n="ui.stat.total_earned">Energía total ganada</span>
               <span id="stat-total-earned">0</span>
             </div>
             <div class="stat-row">
-              <span>Límite offline</span>
+              <span data-i18n="ui.stat.offline_cap">Límite offline</span>
               <span id="stat-offline-cap">2h</span>
             </div>
             <div class="stat-row">
-              <span>Eficiencia offline</span>
+              <span data-i18n="ui.stat.offline_eff">Eficiencia offline</span>
               <span id="stat-offline-eff">50%</span>
             </div>
           </div>
@@ -61,7 +62,7 @@
 
         <!-- Habilidades activas -->
         <div id="abilities-container">
-          <div class="abilities-title">Habilidades</div>
+          <div class="abilities-title" data-i18n="ui.section.abilities">Habilidades</div>
           <div id="abilities-list"></div>
         </div>
       </aside>
@@ -76,21 +77,21 @@
 
         <!-- Buy mode selector -->
         <div id="buy-mode-bar">
-          <span class="buy-mode-label">Comprar</span>
+          <span class="buy-mode-label" data-i18n="ui.buy_mode.label">Comprar</span>
           <div id="buy-mode-selector"></div>
         </div>
 
         <!-- Portales -->
         <section id="section-portals" class="shop-section">
-          <h2 class="section-title">Portales Dimensionales</h2>
+          <h2 class="section-title" data-i18n="ui.section.portals">Portales Dimensionales</h2>
           <div id="portals-list"></div>
         </section>
 
         <!-- Mejoras -->
         <section id="section-upgrades" class="shop-section" style="display:none">
           <h2 class="section-title">
-            Mejoras
-            <span class="new-badge" id="upgrades-badge">NUEVO</span>
+            <span data-i18n="ui.section.upgrades">Mejoras</span>
+            <span class="new-badge" id="upgrades-badge" data-i18n="ui.badge.new">NUEVO</span>
           </h2>
           <div id="upgrades-list"></div>
         </section>
@@ -104,9 +105,9 @@
     <!-- ── MODAL OFFLINE ── -->
     <div id="offline-modal" style="display:none">
       <div id="offline-modal-box">
-        <div id="offline-modal-title">¡Bienvenido de vuelta!</div>
+        <div id="offline-modal-title" data-i18n="modal.offline.title">¡Bienvenido de vuelta!</div>
         <div id="offline-modal-body"></div>
-        <button id="offline-modal-close" class="btn-primary">Recolectar</button>
+        <button id="offline-modal-close" class="btn-primary" data-i18n="modal.offline.collect">Recolectar</button>
       </div>
     </div>
 
@@ -115,8 +116,8 @@
       <div id="confirm-modal-box">
         <div id="confirm-modal-message"></div>
         <div id="confirm-modal-actions">
-          <button id="confirm-modal-cancel" class="btn-secondary">Cancelar</button>
-          <button id="confirm-modal-ok"     class="btn-danger-solid">Confirmar</button>
+          <button id="confirm-modal-cancel" class="btn-secondary" data-i18n="modal.confirm.cancel">Cancelar</button>
+          <button id="confirm-modal-ok"     class="btn-danger-solid" data-i18n="modal.confirm.ok">Confirmar</button>
         </div>
       </div>
     </div>

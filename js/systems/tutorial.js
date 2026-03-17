@@ -1,12 +1,9 @@
 // ── Sistema de tutorial ───────────────────────────────────────────────────────
 //    Stage 5 reemplaza esto con un tutorial completo de 5+ pasos
 
-const TUTORIAL_STEPS = [
-  '⬡ Hacé click en el Nexo para generar tu primera Energía',
-  '✦ ¡Comprá tu primer Portal para automatizar la producción!',
-  '⚙ Comprá más portales — cuando tengas suficientes, aparecerán Mejoras',
-  null,  // null = ocultar banner
-]
+import { t } from '../utils/i18n.js'
+
+const TUTORIAL_STEP_COUNT = 3  // índices 0-2; paso 3 = null (ocultar)
 
 export const Tutorial = {
   advance(state, toStep) {
@@ -26,12 +23,12 @@ export const Tutorial = {
     const text   = document.getElementById('tutorial-text')
     const step   = state.tutorialStep
 
-    if (step === -1 || TUTORIAL_STEPS[step] === null) {
+    if (step === -1 || step >= TUTORIAL_STEP_COUNT) {
       banner.classList.add('hidden')
       return
     }
 
-    text.textContent = TUTORIAL_STEPS[step]
+    text.textContent = t(`tutorial.step${step}`)
     banner.classList.remove('hidden')
   },
 }

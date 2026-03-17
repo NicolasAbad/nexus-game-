@@ -7,6 +7,7 @@ import { ABILITY_DATA }  from './data/abilities.js'
 import { Production }    from './core/production.js'
 import { Abilities }     from './systems/abilities.js'
 import { fmt, fmtTime }  from './utils/format.js'
+import { t, i18n }       from './utils/i18n.js'
 
 // Callbacks inyectados desde game.js via UI.init()
 let _actions = {}
@@ -41,9 +42,19 @@ export const UI = {
     })
     document.getElementById('btn-save').addEventListener('click', () => {
       _actions.manualSave()
-      this.showNotification('Partida guardada', 'success')
+      this.showNotification(t('notif.saved'), 'success')
     })
     document.getElementById('btn-reset').addEventListener('click', () => _actions.reset())
+
+    const btnLang = document.getElementById('btn-lang')
+    if (btnLang) {
+      btnLang.addEventListener('click', () => {
+        const next = i18n.getLocale() === 'es' ? 'en' : 'es'
+        i18n.setLocale(next)
+        this.build()
+        this.renderAll(_actions.getState())
+      })
+    }
     document.getElementById('offline-modal-close').addEventListener('click', () => {
       document.getElementById('offline-modal').style.display = 'none'
     })
@@ -86,8 +97,8 @@ export const UI = {
       card.innerHTML = `
         <div class="portal-icon">${p.icon}</div>
         <div class="portal-info">
-          <div class="portal-name">${p.name}</div>
-          <div class="portal-desc">${p.description}</div>
+          <div class="portal-name">${t('portal.' + p.id + '.name')}</div>
+          <div class="portal-desc">${t('portal.' + p.id + '.desc')}</div>
           <div class="portal-prod" id="pprod-${p.id}">0/s</div>
         </div>
         <div class="portal-right">
@@ -118,13 +129,18 @@ export const UI = {
       card.className = 'upgrade-card cant-afford'
       card.id        = `upgrade-${u.id}`
       card.style.display = 'none'
+      const upgDesc = u.portalId === 'click'
+        ? t('upgrade.click_power', { mult: u.multiplier })
+        : t('upgrade.portal_mult', { portal: t('portal.' + u.portalId + '.name'), mult: u.multiplier })
       const reqText = u.portalId === 'click'
-        ? 'Click power'
-        : `${u.desc} · requiere ${u.requires} portal${u.requires > 1 ? 'es' : ''}`
+        ? upgDesc
+        : upgDesc + ' · ' + (u.requires > 1
+            ? t('upgrade.requires_pl', { n: u.requires })
+            : t('upgrade.requires', { n: u.requires }))
       card.innerHTML = `
         <div class="upgrade-icon">${icon}</div>
         <div class="upgrade-info">
-          <div class="upgrade-name">${u.name}</div>
+          <div class="upgrade-name">${t('upgrade.' + u.id + '.name')}</div>
           <div class="upgrade-req">${reqText}</div>
         </div>
         <div class="upgrade-cost">${fmt(new Decimal(u.cost))}</div>
@@ -146,14 +162,14 @@ export const UI = {
         <div class="ability-icon">${ab.icon}</div>
         <div class="ability-info">
           <div class="ability-name-row">
-            <span class="ability-name">${ab.name}</span>
-            <span class="ability-level" id="ablv-${ab.id}">N1</span>
+            <span class="ability-name">${t('ability.' + ab.id + '.name')}</span>
+            <span class="ability-level" id="ablv-${ab.id}">${t('ability.level', { n: 1 })}</span>
           </div>
-          <div class="ability-desc" id="abdesc-${ab.id}">${ab.desc}</div>
+          <div class="ability-desc" id="abdesc-${ab.id}">${t('ability.' + ab.id + '.desc')}</div>
           <div class="ability-exp-bar-wrap" id="abexp-wrap-${ab.id}">
             <div class="ability-exp-bar" id="abexp-${ab.id}" style="width:0%"></div>
           </div>
-          <div class="ability-unlock-hint" id="abhint-${ab.id}">${ab.unlockCondition.label}</div>
+          <div class="ability-unlock-hint" id="abhint-${ab.id}">${t('ability.' + ab.id + '.unlock')}</div>
         </div>
         <div class="ability-right">
           <div class="ability-status" id="abst-${ab.id}">🔒</div>
@@ -275,7 +291,7 @@ export const UI = {
       // ── Desbloqueada ───────────────────────────────────────────────────────
       card.classList.remove('locked')
       if (hint) hint.style.display = 'none'
-      if (lvEl) { lvEl.textContent = `N${ast.level}`; lvEl.style.display = 'inline' }
+      if (lvEl) { lvEl.textContent = t('ability.level', { n: ast.level }); lvEl.style.display = 'inline' }
 
       // EXP bar (oculta si es L5)
       if (expBar) {
@@ -291,7 +307,9 @@ export const UI = {
       // Usos restantes hoy
       if (dayEl) {
         const rem = Abilities.usesRemainingToday(state, ab.id)
-        dayEl.textContent = rem > 0 ? `${rem}/${ab.dailyFree} hoy` : 'límite'
+        dayEl.textContent = rem > 0
+          ? t('ability.daily.uses', { n: rem, max: ab.dailyFree })
+          : t('ability.daily.limit')
         dayEl.className   = `ability-daily${rem === 0 ? ' limit-reached' : ''}`
       }
 
@@ -308,11 +326,11 @@ export const UI = {
         card.classList.add('on-cooldown')
         card.classList.remove('is-active', 'daily-limit')
       } else if (dailyLimit) {
-        stat.textContent = 'MAÑANA'
+        stat.textContent = t('ability.status.tomorrow')
         card.classList.add('daily-limit')
         card.classList.remove('on-cooldown', 'is-active')
       } else {
-        stat.textContent = 'LISTO'
+        stat.textContent = t('ability.status.ready')
         card.classList.remove('on-cooldown', 'is-active', 'daily-limit')
       }
     })
@@ -323,7 +341,7 @@ export const UI = {
     const ab = ABILITY_DATA.find(a => a.id === abilityId)
     if (!ab) return
     this.renderAbilities(state)
-    this.showNotification(`¡${ab.icon} ${ab.name} desbloqueada!`, 'unlock')
+    this.showNotification(t('notif.ability_unlocked', { icon: ab.icon, name: t('ability.' + abilityId + '.name') }), 'unlock')
   },
 
   // ── Desbloqueos ───────────────────────────────────────────────────────────
@@ -335,10 +353,10 @@ export const UI = {
         card.classList.add('just-unlocked')
         card.addEventListener('animationend', () => card.classList.remove('just-unlocked'), { once: true })
       }
-      this.showNotification(`¡${unlock.portal.name} descubierto!`, 'unlock')
+      this.showNotification(t('notif.portal_unlocked', { name: t('portal.' + unlock.portal.id + '.name') }), 'unlock')
     } else if (unlock.type === 'panel') {
       this.renderUpgradesSection(state)
-      this.showNotification(`¡Panel de ${unlock.name} desbloqueado!`, 'unlock')
+      this.showNotification(t('notif.panel_unlocked', { name: t('ui.section.' + (unlock.panelKey || 'upgrades')) }), 'unlock')
     }
   },
 
@@ -366,12 +384,12 @@ export const UI = {
     const eff   = Math.round(off.efficiency * 100)
     const cap   = fmtTime(offlineCap)
 
-    let html = `Estuviste ausente <strong>${fmtTime(off.secondsAway)}</strong>.`
+    let html = t('modal.offline.absent', { time: fmtTime(off.secondsAway) })
     if (off.wasCapped) {
-      html += `<br><small>Tus portales solo acumulan hasta ${cap} de producción offline.</small>`
+      html += `<br><small>${t('modal.offline.capped', { cap })}</small>`
     }
-    html += `<br>Tus portales trabajaron al <strong>${eff}%</strong> de eficiencia offline:`
-    html += `<span class="earned">+${fmt(off.earned)} Energía</span>`
+    html += `<br>${t('modal.offline.efficiency', { pct: eff })}`
+    html += `<span class="earned">${t('modal.offline.earned', { energy: fmt(off.earned) })}</span>`
 
     body.innerHTML = html
     modal.style.display = 'flex'

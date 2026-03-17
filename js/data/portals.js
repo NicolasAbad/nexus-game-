@@ -1,12 +1,11 @@
 // ── Datos de portales ─────────────────────────────────────────────────────────
-//    Costos actuales (Stage 1). Stage 4 los actualiza a 25/300/4K/50K
-//    con migración de save.
+//    Texto (name/desc) vive en js/data/strings/es.js y en.js
+//    UI accede via: t('portal.' + id + '.name')
+//    Costos actuales (Stage 1). Stage 4 los actualiza con migración de save.
 
 export const PORTAL_DATA = [
   {
     id:              'ignea',
-    name:            'Portal Ígnea',
-    description:     'Dimensión de fuego primordial',
     icon:            '🔥',
     color:           '#ff6b35',
     baseCost:        15,
@@ -16,8 +15,6 @@ export const PORTAL_DATA = [
   },
   {
     id:              'abismal',
-    name:            'Portal Abismal',
-    description:     'Dimensión de las profundidades oscuras',
     icon:            '🌊',
     color:           '#0099ff',
     baseCost:        150,
@@ -27,8 +24,6 @@ export const PORTAL_DATA = [
   },
   {
     id:              'temporal',
-    name:            'Portal Temporal',
-    description:     'Dimensión suspendida fuera del tiempo',
     icon:            '⚡',
     color:           '#ffcc00',
     baseCost:        1500,
@@ -38,8 +33,6 @@ export const PORTAL_DATA = [
   },
   {
     id:              'vacio',
-    name:            'Portal del Vacío',
-    description:     'El espacio entre todas las dimensiones',
     icon:            '🌌',
     color:           '#cc44ff',
     baseCost:        15000,

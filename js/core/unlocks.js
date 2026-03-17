@@ -27,7 +27,7 @@ export const UnlockSystem = {
       const anyBought = PORTAL_DATA.some(p => (state.portals[p.id] || 0) > 0)
       if (anyBought) {
         state.unlocks.panelUpgrades = true
-        fresh.push({ type: 'panel', name: 'Mejoras' })
+        fresh.push({ type: 'panel', panelKey: 'upgrades' })
       }
     }
 

@@ -1,5 +1,7 @@
 // ── Habilidades activas ───────────────────────────────────────────────────────
-// Cada habilidad tiene 5 niveles que suben por EXP (usos acumulados).
+// Texto (name/desc/unlock label) vive en js/data/strings/es.js y en.js
+// UI accede via: t('ability.' + id + '.name'), t('ability.' + id + '.unlock')
+//
 // EXP thresholds (total de usos para alcanzar cada nivel):
 //   L1=0 | L2=15 | L3=55 | L4=135 | L5=285
 //
@@ -11,13 +13,11 @@ export const EXP_THRESHOLDS = [0, 15, 55, 135, 285]  // índice 0=L1 … 4=L5
 export const ABILITY_DATA = [
   {
     id:       'convergencia',
-    name:     'Convergencia',
     icon:     '🔮',
-    desc:     'Multiplica toda la producción temporalmente',
     type:     'buff',         // aplica productionMult al game loop
     dailyFree: 3,
     dailyAd:   4,
-    unlockCondition: { type: 'totalEnergy', amount: 50000, label: 'Generá 50,000 de energía total' },
+    unlockCondition: { type: 'totalEnergy', amount: 50000 },
     levels: [
       { level: 1, mult: 2,   duration: 30, cooldownH: 6   },
       { level: 2, mult: 2,   duration: 45, cooldownH: 5   },
@@ -28,13 +28,11 @@ export const ABILITY_DATA = [
   },
   {
     id:       'tormenta',
-    name:     'Tormenta',
     icon:     '⚡',
-    desc:     'Auto-click frenético por unos segundos',
     type:     'autoclicker',
     dailyFree: 3,
     dailyAd:   4,
-    unlockCondition: { type: 'totalPortals', amount: 25, label: 'Comprá 25 portales en total' },
+    unlockCondition: { type: 'totalPortals', amount: 25 },
     levels: [
       { level: 1, intervalMs: 150, clickMult: 1, duration: 10, cooldownH: 8   },
       { level: 2, intervalMs: 150, clickMult: 1, duration: 12, cooldownH: 7   },
@@ -45,13 +43,11 @@ export const ABILITY_DATA = [
   },
   {
     id:       'pulso',
-    name:     'Pulso Nexo',
     icon:     '💫',
-    desc:     'Energía instantánea equivalente a minutos de producción',
     type:     'instant',
     dailyFree: 3,
     dailyAd:   4,
-    unlockCondition: { type: 'portalCount', portalId: 'vacio', count: 1, label: 'Comprá tu primer Portal del Vacío' },
+    unlockCondition: { type: 'portalCount', portalId: 'vacio', count: 1 },
     levels: [
       { level: 1, prodMinutes: 10, cooldownH: 8 },
       { level: 2, prodMinutes: 12, cooldownH: 7 },
@@ -62,13 +58,11 @@ export const ABILITY_DATA = [
   },
   {
     id:       'cristalizacion',
-    name:     'Cristalización',
     icon:     '❄️',
-    desc:     'Reduce el costo de todos los portales temporalmente',
     type:     'costReduction',
     dailyFree: 1,
     dailyAd:   4,
-    unlockCondition: { type: 'totalPortals', amount: 100, label: 'Comprá 100 portales en total' },
+    unlockCondition: { type: 'totalPortals', amount: 100 },
     levels: [
       { level: 1, discount: 0.10, duration: 20, cooldownH: 24 },
       { level: 2, discount: 0.20, duration: 25, cooldownH: 24 },
@@ -79,13 +73,11 @@ export const ABILITY_DATA = [
   },
   {
     id:       'resonancia',
-    name:     'Resonancia en Cadena',
     icon:     '🔗',
-    desc:     'Cada portal amplifica al siguiente en la cadena',
     type:     'chain',
     dailyFree: 1,
     dailyAd:   4,
-    unlockCondition: { type: 'allPortalTypes', label: 'Tenés al menos 1 de cada tipo de portal activo' },
+    unlockCondition: { type: 'allPortalTypes' },
     levels: [
       { level: 1, bonusPerPortal: 0.10, duration: 20, cooldownH: 24 },
       { level: 2, bonusPerPortal: 0.15, duration: 25, cooldownH: 24 },

@@ -5,6 +5,7 @@
 
 import './utils/decimal.js'
 
+import { t, i18n }       from './utils/i18n.js'
 import { Analytics }     from './utils/analytics.js'
 import { EventBus }      from './utils/eventbus.js'
 import { UI }            from './ui.js'
@@ -17,7 +18,6 @@ import { OfflineEngine } from './core/offline.js'
 import { UnlockSystem }  from './core/unlocks.js'
 import { Tutorial }      from './systems/tutorial.js'
 import { Abilities }     from './systems/abilities.js'
-import { ABILITY_DATA }  from './data/abilities.js'
 
 // ── Estado global ─────────────────────────────────────────────────────────────
 let state       = null
@@ -176,7 +176,11 @@ function buyUpgrade(upgradeId) {
   state.upgrades[upgradeId] = true
 
   UI.renderUpgradeCard(upgradeId, state)
-  UI.showNotification(`${upg.name} activada — ${upg.desc}`, 'success')
+  const upgName = t('upgrade.' + upgradeId + '.name')
+  const upgDesc = upg.portalId === 'click'
+    ? t('upgrade.click_power', { mult: upg.multiplier })
+    : t('upgrade.portal_mult', { portal: t('portal.' + upg.portalId + '.name'), mult: upg.multiplier })
+  UI.showNotification(t('notif.upgrade_bought', { name: upgName, desc: upgDesc }), 'success')
   Analytics.track('upgrade_bought', { upgradeId })
   EventBus.emit('upgrade_bought', { upgradeId })
   return true
@@ -188,7 +192,7 @@ function activateAbility(abilityId) {
 
   if (!result.ok) {
     if (result.reason === 'daily_limit') {
-      UI.showNotification('Límite diario alcanzado — volvé mañana', 'info')
+      UI.showNotification(t('notif.ability_daily_limit'), 'info')
     }
     return
   }
@@ -197,14 +201,13 @@ function activateAbility(abilityId) {
   if (result.energy) {
     state.energy            = state.energy.add(result.energy)
     state.totalEnergyEarned = state.totalEnergyEarned.add(result.energy)
-    UI.showNotification(`Pulso Nexo — +${UI.fmtPublic(result.energy)} Energía`, 'success')
+    UI.showNotification(t('notif.pulso_energy', { energy: UI.fmtPublic(result.energy) }), 'success')
   }
 
   // Level up de la habilidad
   if (result.leveledUp) {
-    const ab  = ABILITY_DATA.find(a => a.id === abilityId)
     const ast = state.abilities[abilityId]
-    UI.showNotification(`¡${ab?.name ?? abilityId} subió a Nivel ${ast.level}!`, 'unlock')
+    UI.showNotification(t('notif.ability_levelup', { name: t('ability.' + abilityId + '.name'), level: ast.level }), 'unlock')
   }
 
   UI.renderAbilities(state)
@@ -213,7 +216,7 @@ function activateAbility(abilityId) {
 }
 
 async function reset() {
-  const confirmed = await UI.showConfirm('¿Seguro? Se borrará todo el progreso.')
+  const confirmed = await UI.showConfirm(t('modal.reset.message'))
   if (!confirmed) return
 
   SaveManager.clear()
@@ -232,6 +235,7 @@ function manualSave() {
 
 // ── Inicialización ────────────────────────────────────────────────────────────
 function init() {
+  i18n.init()
   Analytics.init(null)
 
   const saved = SaveManager.load()
