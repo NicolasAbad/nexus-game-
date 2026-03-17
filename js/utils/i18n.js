@@ -8,7 +8,7 @@ import { STRINGS_EN } from '../data/strings/en.js'
 const STRINGS = { es: STRINGS_ES, en: STRINGS_EN }
 const LOCALE_KEY = 'nexus_locale'
 
-let _locale = 'es'
+let _locale = 'en'
 
 export const i18n = {
   init() {
@@ -16,7 +16,7 @@ export const i18n = {
     const browser = navigator.language?.slice(0, 2)
     _locale = (saved && STRINGS[saved])
       ? saved
-      : (STRINGS[browser] ? browser : 'es')
+      : (STRINGS[browser] ? browser : 'en')
   },
 
   setLocale(lang) {
