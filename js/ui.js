@@ -51,7 +51,10 @@ export const UI = {
       btnLang.addEventListener('click', () => {
         const next = i18n.getLocale() === 'es' ? 'en' : 'es'
         i18n.setLocale(next)
-        this.build()
+        this._buildBuyMode()
+        this._buildPortals()
+        this._buildUpgrades()
+        this._buildAbilities()
         this.renderAll(_actions.getState())
       })
     }
