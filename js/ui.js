@@ -140,15 +140,25 @@ export const UI = {
     list.innerHTML = ''
     ABILITY_DATA.forEach(ab => {
       const card = document.createElement('div')
-      card.className = 'ability-card'
+      card.className = 'ability-card locked'
       card.id        = `ability-${ab.id}`
       card.innerHTML = `
         <div class="ability-icon">${ab.icon}</div>
         <div class="ability-info">
-          <div class="ability-name">${ab.name}</div>
-          <div class="ability-desc">${ab.desc}</div>
+          <div class="ability-name-row">
+            <span class="ability-name">${ab.name}</span>
+            <span class="ability-level" id="ablv-${ab.id}">N1</span>
+          </div>
+          <div class="ability-desc" id="abdesc-${ab.id}">${ab.desc}</div>
+          <div class="ability-exp-bar-wrap" id="abexp-wrap-${ab.id}">
+            <div class="ability-exp-bar" id="abexp-${ab.id}" style="width:0%"></div>
+          </div>
+          <div class="ability-unlock-hint" id="abhint-${ab.id}">${ab.unlockCondition.label}</div>
         </div>
-        <div class="ability-status" id="abst-${ab.id}">LISTO</div>
+        <div class="ability-right">
+          <div class="ability-status" id="abst-${ab.id}">🔒</div>
+          <div class="ability-daily" id="abday-${ab.id}"></div>
+        </div>
       `
       card.addEventListener('click', () => _actions.activateAbility(ab.id))
       list.appendChild(card)
@@ -239,25 +249,81 @@ export const UI = {
 
   renderAbilities(state) {
     ABILITY_DATA.forEach(ab => {
-      const card = document.getElementById(`ability-${ab.id}`)
-      const stat = document.getElementById(`abst-${ab.id}`)
+      const card    = document.getElementById(`ability-${ab.id}`)
+      const stat    = document.getElementById(`abst-${ab.id}`)
+      const dayEl   = document.getElementById(`abday-${ab.id}`)
+      const lvEl    = document.getElementById(`ablv-${ab.id}`)
+      const expBar  = document.getElementById(`abexp-${ab.id}`)
+      const hint    = document.getElementById(`abhint-${ab.id}`)
       if (!card || !stat) return
 
-      if (Abilities.isOnCooldown(state, ab.id)) {
-        const secs = Math.ceil(Abilities.cooldownRemaining(state, ab.id))
-        stat.textContent = fmtTime(secs)
-        card.classList.add('on-cooldown')
-        card.classList.remove('is-active')
-      } else if (Abilities.isActive(state, ab.id)) {
+      const ast      = state.abilities[ab.id]
+      const unlocked = Abilities.isUnlocked(state, ab.id)
+
+      // ── Estado locked ──────────────────────────────────────────────────────
+      if (!unlocked) {
+        card.classList.add('locked')
+        card.classList.remove('on-cooldown', 'is-active', 'daily-limit')
+        stat.textContent = '🔒'
+        if (dayEl)  dayEl.textContent  = ''
+        if (hint)   hint.style.display = 'block'
+        if (lvEl)   lvEl.style.display = 'none'
+        if (expBar) expBar.style.width = '0%'
+        return
+      }
+
+      // ── Desbloqueada ───────────────────────────────────────────────────────
+      card.classList.remove('locked')
+      if (hint) hint.style.display = 'none'
+      if (lvEl) { lvEl.textContent = `N${ast.level}`; lvEl.style.display = 'inline' }
+
+      // EXP bar (oculta si es L5)
+      if (expBar) {
+        const wrap = document.getElementById(`abexp-wrap-${ab.id}`)
+        if (ast.level >= 5) {
+          if (wrap) wrap.style.display = 'none'
+        } else {
+          if (wrap) wrap.style.display = 'block'
+          expBar.style.width = Math.round(Abilities.expProgress(ast) * 100) + '%'
+        }
+      }
+
+      // Usos restantes hoy
+      if (dayEl) {
+        const rem = Abilities.usesRemainingToday(state, ab.id)
+        dayEl.textContent = rem > 0 ? `${rem}/${ab.dailyFree} hoy` : 'límite'
+        dayEl.className   = `ability-daily${rem === 0 ? ' limit-reached' : ''}`
+      }
+
+      // Estado: cooldown, activa, o lista
+      const dailyLimit = Abilities.isDailyLimitReached(state, ab.id)
+      if (Abilities.isActive(state, ab.id)) {
         const secs = Math.ceil(Abilities.activeRemaining(state, ab.id))
         stat.textContent = fmtTime(secs)
         card.classList.add('is-active')
-        card.classList.remove('on-cooldown')
+        card.classList.remove('on-cooldown', 'daily-limit')
+      } else if (Abilities.isOnCooldown(state, ab.id)) {
+        const secs = Math.ceil(Abilities.cooldownRemaining(state, ab.id))
+        stat.textContent = fmtTime(secs)
+        card.classList.add('on-cooldown')
+        card.classList.remove('is-active', 'daily-limit')
+      } else if (dailyLimit) {
+        stat.textContent = 'MAÑANA'
+        card.classList.add('daily-limit')
+        card.classList.remove('on-cooldown', 'is-active')
       } else {
         stat.textContent = 'LISTO'
-        card.classList.remove('on-cooldown', 'is-active')
+        card.classList.remove('on-cooldown', 'is-active', 'daily-limit')
       }
     })
+  },
+
+  // ── Desbloqueo de habilidad ───────────────────────────────────────────────
+  applyAbilityUnlock(abilityId, state) {
+    const ab = ABILITY_DATA.find(a => a.id === abilityId)
+    if (!ab) return
+    this.renderAbilities(state)
+    this.showNotification(`¡${ab.icon} ${ab.name} desbloqueada!`, 'unlock')
   },
 
   // ── Desbloqueos ───────────────────────────────────────────────────────────

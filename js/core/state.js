@@ -4,7 +4,7 @@ export const SAVE_KEY         = 'nexus_save_v1'   // misma key para cargar saves
 export const SAVE_INTERVAL_MS = 10_000
 export const MIN_OFFLINE_SECS = 30
 export const UI_TICK_MS       = 100
-export const CURRENT_VERSION  = 3
+export const CURRENT_VERSION  = 4
 
 export function createInitialState() {
   return {
@@ -32,11 +32,20 @@ export function createInitialState() {
     offlineCap:        2 * 3600,
     offlineEfficiency: 0.5,
 
-    // Habilidades activas — lastUsed/activeUntil son timestamps en ms
+    // Habilidades activas
+    // unlocked: se desbloquea al cumplir su condición
+    // level: 1-5, sube con exp (usos acumulados)
+    // exp: total de veces usada (para subir de nivel)
+    // lastUsed: timestamp ms (para cooldown)
+    // activeUntil: timestamp ms (para efectos con duración)
+    // usesToday: usos gratuitos consumidos hoy
+    // dailyReset: timestamp del último reset diario (medianoche)
     abilities: {
-      convergencia: { lastUsed: 0, activeUntil: 0 },
-      tormenta:     { lastUsed: 0, activeUntil: 0 },
-      pulso:        { lastUsed: 0 },
+      convergencia:   { unlocked: false, level: 1, exp: 0, lastUsed: 0, activeUntil: 0, usesToday: 0, dailyReset: 0 },
+      tormenta:       { unlocked: false, level: 1, exp: 0, lastUsed: 0, activeUntil: 0, usesToday: 0, dailyReset: 0 },
+      pulso:          { unlocked: false, level: 1, exp: 0, lastUsed: 0, activeUntil: 0, usesToday: 0, dailyReset: 0 },
+      cristalizacion: { unlocked: false, level: 1, exp: 0, lastUsed: 0, activeUntil: 0, usesToday: 0, dailyReset: 0 },
+      resonancia:     { unlocked: false, level: 1, exp: 0, lastUsed: 0, activeUntil: 0, usesToday: 0, dailyReset: 0 },
     },
 
     // Meta
@@ -61,17 +70,28 @@ export function migrateState(state) {
   }
 
   if (v < 3) {
-    // Agregar habilidades a saves anteriores
     state.abilities = {
       convergencia: { lastUsed: 0, activeUntil: 0 },
       tormenta:     { lastUsed: 0, activeUntil: 0 },
       pulso:        { lastUsed: 0 },
-      ...(state.abilities || {}),
     }
     state.version = 3
   }
 
-  // Futuras migraciones se agregan aquí con: if (v < 3) { ... }
+  if (v < 4) {
+    // Reemplaza la estructura vieja de abilities por la nueva con niveles, EXP y límite diario
+    const defaultAst = { unlocked: false, level: 1, exp: 0, lastUsed: 0, activeUntil: 0, usesToday: 0, dailyReset: 0 }
+    state.abilities = {
+      convergencia:   { ...defaultAst },
+      tormenta:       { ...defaultAst },
+      pulso:          { ...defaultAst },
+      cristalizacion: { ...defaultAst },
+      resonancia:     { ...defaultAst },
+    }
+    state.version = 4
+  }
+
+  // Futuras migraciones se agregan aquí con: if (v < N) { ... }
 
   return state
 }

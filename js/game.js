@@ -17,6 +17,7 @@ import { OfflineEngine } from './core/offline.js'
 import { UnlockSystem }  from './core/unlocks.js'
 import { Tutorial }      from './systems/tutorial.js'
 import { Abilities }     from './systems/abilities.js'
+import { ABILITY_DATA }  from './data/abilities.js'
 
 // ── Estado global ─────────────────────────────────────────────────────────────
 let state       = null
@@ -26,19 +27,23 @@ let _lastUITick = 0
 // ── Helpers de costo ──────────────────────────────────────────────────────────
 
 function portalCost(portalId) {
-  const def   = PORTAL_DATA.find(p => p.id === portalId)
-  const count = state.portals[portalId] || 0
-  return new Decimal(def.baseCost).mul(new Decimal(def.costMultiplier).pow(count))
+  const def      = PORTAL_DATA.find(p => p.id === portalId)
+  const count    = state.portals[portalId] || 0
+  const base     = new Decimal(def.baseCost).mul(new Decimal(def.costMultiplier).pow(count))
+  const discount = Abilities.getCostDiscount(state)
+  return discount > 0 ? base.mul(1 - discount) : base
 }
 
-// Costo total de comprar n portales desde el count actual
+// Costo total de comprar n portales desde el count actual (aplica descuento de Cristalización)
 function portalCostN(portalId, n) {
-  const def   = PORTAL_DATA.find(p => p.id === portalId)
-  const count = state.portals[portalId] || 0
-  let total   = new Decimal(0)
+  const def      = PORTAL_DATA.find(p => p.id === portalId)
+  const count    = state.portals[portalId] || 0
+  const discount = Abilities.getCostDiscount(state)
+  const mult     = discount > 0 ? (1 - discount) : 1
+  let total      = new Decimal(0)
   for (let i = 0; i < n; i++) {
     total = total.add(
-      new Decimal(def.baseCost).mul(new Decimal(def.costMultiplier).pow(count + i))
+      new Decimal(def.baseCost).mul(new Decimal(def.costMultiplier).pow(count + i)).mul(mult)
     )
   }
   return total
@@ -64,15 +69,22 @@ function loop(ts) {
   const delta = Math.min((ts - _lastTick) / 1000, 1)
   _lastTick = ts
 
-  // Producción pasiva × multiplicador de habilidades activas
+  // Producción pasiva × multiplicadores de habilidades activas
   const abilityMult = Abilities.getProductionMultiplier(state)
-  const gained      = Production.total(state).mul(abilityMult).mul(delta)
+  const chainBonus  = Abilities.getChainBonus(state)
+  const baseProd    = Production.total(state)
+  const gained      = baseProd.mul(abilityMult).add(chainBonus).mul(delta)
   state.energy            = state.energy.add(gained)
   state.totalEnergyEarned = state.totalEnergyEarned.add(gained)
 
-  // Auto-click de Tormenta
-  const autoClicks = Abilities.getAutoClicks(state, delta)
-  for (let i = 0; i < autoClicks; i++) _doClick(false)
+  // Auto-click de Tormenta (con multiplicador de nivel)
+  const autoClicks   = Abilities.getAutoClicks(state, delta)
+  const autoClickMult = Abilities.getAutoClickMultiplier(state)
+  for (let i = 0; i < autoClicks; i++) _doAutoClick(autoClickMult)
+
+  // Desbloqueos de habilidades
+  const newAbilityUnlocks = Abilities.checkUnlocks(state)
+  newAbilityUnlocks.forEach(id => UI.applyAbilityUnlock(id, state))
 
   // Desbloqueos
   const fresh = UnlockSystem.check(state)
@@ -89,7 +101,7 @@ function loop(ts) {
   requestAnimationFrame(loop)
 }
 
-// ── Lógica de click (interna, reutilizada por Tormenta) ───────────────────────
+// ── Lógica de click (interna) ─────────────────────────────────────────────────
 function _doClick(advanceTutorial = true) {
   const power = Production.clickPower(state)
   state.energy            = state.energy.add(power)
@@ -103,6 +115,14 @@ function _doClick(advanceTutorial = true) {
 
   EventBus.emit('click', { totalClicks: state.totalClicks })
   return power
+}
+
+// Auto-click de Tormenta (no avanza tutorial, aplica multiplicador de nivel)
+function _doAutoClick(mult = 1) {
+  const power = Production.clickPower(state).mul(mult)
+  state.energy            = state.energy.add(power)
+  state.totalEnergyEarned = state.totalEnergyEarned.add(power)
+  state.totalClicks++
 }
 
 // ── Acciones públicas ─────────────────────────────────────────────────────────
@@ -166,13 +186,25 @@ function activateAbility(abilityId) {
   const prod   = Production.total(state)
   const result = Abilities.activate(state, abilityId, prod)
 
-  if (!result.ok) return
+  if (!result.ok) {
+    if (result.reason === 'daily_limit') {
+      UI.showNotification('Límite diario alcanzado — volvé mañana', 'info')
+    }
+    return
+  }
 
   // Pulso Nexo da energía instantánea
   if (result.energy) {
     state.energy            = state.energy.add(result.energy)
     state.totalEnergyEarned = state.totalEnergyEarned.add(result.energy)
     UI.showNotification(`Pulso Nexo — +${UI.fmtPublic(result.energy)} Energía`, 'success')
+  }
+
+  // Level up de la habilidad
+  if (result.leveledUp) {
+    const ab  = ABILITY_DATA.find(a => a.id === abilityId)
+    const ast = state.abilities[abilityId]
+    UI.showNotification(`¡${ab?.name ?? abilityId} subió a Nivel ${ast.level}!`, 'unlock')
   }
 
   UI.renderAbilities(state)
