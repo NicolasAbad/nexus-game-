@@ -80,7 +80,7 @@ export const UI = {
       btn.addEventListener('click', () => {
         _buyMode = m.value === 'max' ? 'max' : Number(m.value)
         container.querySelectorAll('.btn-buy-mode').forEach(b =>
-          b.classList.toggle('active', b.dataset.mode == String(_buyMode))
+          b.classList.toggle('active', b.dataset.mode === String(_buyMode))
         )
         this.renderAffordability(_actions.getState())
       })
@@ -283,7 +283,7 @@ export const UI = {
       if (!unlocked) {
         card.classList.add('locked')
         card.classList.remove('on-cooldown', 'is-active', 'daily-limit')
-        stat.textContent = '🔒'
+        stat.textContent = t('ability.status.locked')
         if (dayEl)  dayEl.textContent  = ''
         if (hint)   hint.style.display = 'block'
         if (lvEl)   lvEl.style.display = 'none'
