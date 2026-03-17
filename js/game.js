@@ -18,6 +18,7 @@ import { OfflineEngine } from './core/offline.js'
 import { UnlockSystem }  from './core/unlocks.js'
 import { Tutorial }      from './systems/tutorial.js'
 import { Abilities }     from './systems/abilities.js'
+import { Synergies }     from './systems/synergies.js'
 
 // ── Estado global ─────────────────────────────────────────────────────────────
 let state       = null
@@ -86,6 +87,12 @@ function loop(ts) {
   const newAbilityUnlocks = Abilities.checkUnlocks(state)
   newAbilityUnlocks.forEach(id => UI.applyAbilityUnlock(id, state))
 
+  // Sinergias cross-portal
+  const newSynergies = Synergies.checkNew(state)
+  newSynergies.forEach(id =>
+    UI.showNotification(t('notif.synergy_activated', { name: t('synergy.' + id + '.name') }), 'unlock')
+  )
+
   // Desbloqueos
   const fresh = UnlockSystem.check(state)
   if (fresh.length > 0) fresh.forEach(u => UI.applyUnlock(u, state))
@@ -103,7 +110,7 @@ function loop(ts) {
 
 // ── Lógica de click (interna) ─────────────────────────────────────────────────
 function _doClick(advanceTutorial = true) {
-  const power = Production.clickPower(state)
+  const power = Production.clickPower(state, Production.total(state))
   state.energy            = state.energy.add(power)
   state.totalEnergyEarned = state.totalEnergyEarned.add(power)
   state.totalClicks++
@@ -119,7 +126,7 @@ function _doClick(advanceTutorial = true) {
 
 // Auto-click de Tormenta (no avanza tutorial, aplica multiplicador de nivel)
 function _doAutoClick(mult = 1) {
-  const power = Production.clickPower(state).mul(mult)
+  const power = Production.clickPower(state, Production.total(state)).mul(mult)
   state.energy            = state.energy.add(power)
   state.totalEnergyEarned = state.totalEnergyEarned.add(power)
   state.totalClicks++
@@ -165,9 +172,11 @@ function buyUpgrade(upgradeId) {
   const upg = UPGRADE_DATA.find(u => u.id === upgradeId)
   if (!upg || state.upgrades[upgradeId]) return false
 
-  // Click upgrades: solo requieren el panel abierto (requires: 0)
-  if (upg.portalId !== 'click') {
+  if (upg.portalId !== 'click' && upg.portalId !== 'global') {
     if ((state.portals[upg.portalId] || 0) < upg.requires) return false
+  }
+  if (upg.portalId === 'global' && upg.requiresEnergy) {
+    if (state.totalEnergyEarned.lt(upg.requiresEnergy)) return false
   }
 
   if (state.energy.lt(upg.cost)) return false
@@ -178,8 +187,12 @@ function buyUpgrade(upgradeId) {
   UI.renderUpgradeCard(upgradeId, state)
   const upgName = t('upgrade.' + upgradeId + '.name')
   const upgDesc = upg.portalId === 'click'
-    ? t('upgrade.click_power', { mult: upg.multiplier })
-    : t('upgrade.portal_mult', { portal: t('portal.' + upg.portalId + '.name'), mult: upg.multiplier })
+    ? (upg.prodMinutes
+        ? t('upgrade.click_prod', { min: upg.prodMinutes })
+        : t('upgrade.click_power', { mult: upg.multiplier }))
+    : upg.portalId === 'global'
+      ? t('upgrade.global_all', { mult: upg.multiplier })
+      : t('upgrade.portal_mult', { portal: t('portal.' + upg.portalId + '.name'), mult: upg.multiplier })
   UI.showNotification(t('notif.upgrade_bought', { name: upgName, desc: upgDesc }), 'success')
   Analytics.track('upgrade_bought', { upgradeId })
   EventBus.emit('upgrade_bought', { upgradeId })

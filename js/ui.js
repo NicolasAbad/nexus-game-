@@ -133,9 +133,13 @@ export const UI = {
       card.id        = `upgrade-${u.id}`
       card.style.display = 'none'
       const upgDesc = u.portalId === 'click'
-        ? t('upgrade.click_power', { mult: u.multiplier })
-        : t('upgrade.portal_mult', { portal: t('portal.' + u.portalId + '.name'), mult: u.multiplier })
-      const reqText = u.portalId === 'click'
+        ? (u.prodMinutes
+            ? t('upgrade.click_prod', { min: u.prodMinutes })
+            : t('upgrade.click_power', { mult: u.multiplier }))
+        : u.portalId === 'global'
+          ? t('upgrade.global_all', { mult: u.multiplier })
+          : t('upgrade.portal_mult', { portal: t('portal.' + u.portalId + '.name'), mult: u.multiplier })
+      const reqText = (u.portalId === 'click' || u.portalId === 'global')
         ? upgDesc
         : upgDesc + ' · ' + (u.requires > 1
             ? t('upgrade.requires_pl', { n: u.requires })
@@ -200,7 +204,7 @@ export const UI = {
     document.getElementById('res-production').textContent    = fmt(effectProd) + '/s'
     document.getElementById('stat-total-prod').textContent   = fmt(effectProd) + '/s'
     document.getElementById('stat-total-earned').textContent = fmt(state.totalEnergyEarned)
-    document.getElementById('click-power').textContent       = fmt(Production.clickPower(state))
+    document.getElementById('click-power').textContent       = fmt(Production.clickPower(state, baseProd))
     document.getElementById('stat-offline-cap').textContent  = fmtTime(state.offlineCap)
     document.getElementById('stat-offline-eff').textContent  = Math.round(state.offlineEfficiency * 100) + '%'
   },
@@ -240,10 +244,11 @@ export const UI = {
     const upg      = UPGRADE_DATA.find(u => u.id === upgradeId)
     const purchased = !!state.upgrades[upgradeId]
 
-    // Click upgrades: visibles en cuanto el panel esté abierto
     const visible = upg.portalId === 'click'
       ? state.unlocks.panelUpgrades
-      : (state.portals[upg.portalId] || 0) >= upg.requires || purchased
+      : upg.portalId === 'global'
+        ? (state.totalEnergyEarned.gte(upg.requiresEnergy || 0) || purchased)
+        : ((state.portals[upg.portalId] || 0) >= upg.requires || purchased)
 
     card.style.display = visible ? 'flex' : 'none'
     card.classList.toggle('purchased',   purchased)
@@ -261,7 +266,9 @@ export const UI = {
     UPGRADE_DATA.forEach(u => {
       const card = document.getElementById(`upgrade-${u.id}`)
       if (!card || card.style.display === 'none' || state.upgrades[u.id]) return
-      const hasPortals = u.portalId === 'click' || (state.portals[u.portalId] || 0) >= u.requires
+      const hasPortals = u.portalId === 'click'
+        || u.portalId === 'global'
+        || (state.portals[u.portalId] || 0) >= u.requires
       card.classList.toggle('cant-afford', !hasPortals || !state.energy.gte(u.cost))
     })
   },

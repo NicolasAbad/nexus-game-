@@ -4,7 +4,7 @@ export const SAVE_KEY         = 'nexus_save_v1'   // misma key para cargar saves
 export const SAVE_INTERVAL_MS = 10_000
 export const MIN_OFFLINE_SECS = 30
 export const UI_TICK_MS       = 100
-export const CURRENT_VERSION  = 4
+export const CURRENT_VERSION  = 5
 
 export function createInitialState() {
   return {
@@ -13,33 +13,36 @@ export function createInitialState() {
     totalEnergyEarned: new Decimal(0),
     totalClicks:       0,
 
-    // Portales — Stage 4 agrega celestial, caos, primordial, singular
-    portals: { ignea: 0, abismal: 0, temporal: 0, vacio: 0 },
+    // Portales
+    portals: {
+      ignea: 0, abismal: 0, temporal: 0, vacio: 0,
+      celestial: 0, caos: 0, primordial: 0, singular: 0,
+    },
 
     // Mejoras compradas { upgradeId: true }
     upgrades: {},
 
-    // Desbloqueos
+    // Desbloqueos de portales y paneles
     unlocks: {
-      portalIgnea:    false,
-      portalAbismal:  false,
-      portalTemporal: false,
-      portalVacio:    false,
-      panelUpgrades:  false,
+      portalIgnea:       false,
+      portalAbismal:     false,
+      portalTemporal:    false,
+      portalVacio:       false,
+      portalCelestial:   false,
+      portalCaos:        false,
+      portalPrimordial:  false,
+      portalSingular:    false,
+      panelUpgrades:     false,
     },
+
+    // Sinergias cross-portal activadas { synergyId: true }
+    activeSynergies: {},
 
     // Offline income
     offlineCap:        2 * 3600,
     offlineEfficiency: 0.5,
 
     // Habilidades activas
-    // unlocked: se desbloquea al cumplir su condición
-    // level: 1-5, sube con exp (usos acumulados)
-    // exp: total de veces usada (para subir de nivel)
-    // lastUsed: timestamp ms (para cooldown)
-    // activeUntil: timestamp ms (para efectos con duración)
-    // usesToday: usos gratuitos consumidos hoy
-    // dailyReset: timestamp del último reset diario (medianoche)
     abilities: {
       convergencia:   { unlocked: false, level: 1, exp: 0, lastUsed: 0, activeUntil: 0, usesToday: 0, dailyReset: 0 },
       tormenta:       { unlocked: false, level: 1, exp: 0, lastUsed: 0, activeUntil: 0, usesToday: 0, dailyReset: 0 },
@@ -79,7 +82,6 @@ export function migrateState(state) {
   }
 
   if (v < 4) {
-    // Reemplaza la estructura vieja de abilities por la nueva con niveles, EXP y límite diario
     const defaultAst = { unlocked: false, level: 1, exp: 0, lastUsed: 0, activeUntil: 0, usesToday: 0, dailyReset: 0 }
     state.abilities = {
       convergencia:   { ...defaultAst },
@@ -91,7 +93,30 @@ export function migrateState(state) {
     state.version = 4
   }
 
-  // Futuras migraciones se agregan aquí con: if (v < N) { ... }
+  if (v < 5) {
+    // Agregar nuevos portales conservando los existentes
+    state.portals = {
+      ignea:      state.portals?.ignea      || 0,
+      abismal:    state.portals?.abismal    || 0,
+      temporal:   state.portals?.temporal   || 0,
+      vacio:      state.portals?.vacio      || 0,
+      celestial:  0,
+      caos:       0,
+      primordial: 0,
+      singular:   0,
+    }
+    // Agregar nuevas keys de desbloqueo
+    state.unlocks = {
+      ...state.unlocks,
+      portalCelestial:  false,
+      portalCaos:       false,
+      portalPrimordial: false,
+      portalSingular:   false,
+    }
+    // Inicializar tracker de sinergias
+    state.activeSynergies = {}
+    state.version = 5
+  }
 
   return state
 }
