@@ -19,6 +19,7 @@ import { UnlockSystem }  from './core/unlocks.js'
 import { Tutorial }      from './systems/tutorial.js'
 import { Abilities }     from './systems/abilities.js'
 import { Synergies }     from './systems/synergies.js'
+import { MissionSystem } from './systems/missions.js'
 
 // ── Estado global ─────────────────────────────────────────────────────────────
 let state       = null
@@ -102,6 +103,19 @@ function loop(ts) {
     UI.renderResources(state, abilityMult)
     UI.renderAffordability(state)
     UI.renderAbilities(state)
+
+    // Misiones
+    const newMissions = MissionSystem.check(state, baseProd)
+    if (newMissions.length > 0) {
+      newMissions.forEach(({ id, energyReward }) => {
+        state.energy            = state.energy.add(energyReward)
+        state.totalEnergyEarned = state.totalEnergyEarned.add(energyReward)
+        UI.showNotification(t('notif.mission_complete', { title: t('mission.' + id + '.title') }), 'success')
+      })
+      UI.renderMissions(state)
+    }
+    UI.renderNextObjective(state)
+
     _lastUITick = ts
   }
 
@@ -115,6 +129,7 @@ function _doClick(advanceTutorial = true) {
   state.totalEnergyEarned = state.totalEnergyEarned.add(power)
   state.totalClicks++
 
+  state.missions.daily.clicks++
   if (advanceTutorial && state.tutorialStep === 0) Tutorial.advance(state, 1)
 
   const fresh = UnlockSystem.check(state)
@@ -149,9 +164,11 @@ function buyPortalN(portalId, n) {
 
   state.energy = state.energy.sub(cost)
   state.portals[portalId] = (state.portals[portalId] || 0) + n
+  state.missions.daily.portalsBought   += n
+  state.missions.weekly.portalsBought  += n
 
   if (state.tutorialStep === 1) Tutorial.advance(state, 2)
-  if (state.tutorialStep === 2 && state.unlocks.panelUpgrades) Tutorial.complete(state)
+  if (state.tutorialStep === 2 && state.unlocks.panelUpgrades) Tutorial.advance(state, 3)
 
   UI.renderPortalCard(portalId, state)
   const fresh = UnlockSystem.check(state)
@@ -185,6 +202,7 @@ function buyUpgrade(upgradeId) {
   state.upgrades[upgradeId] = true
 
   UI.renderUpgradeCard(upgradeId, state)
+  if (state.tutorialStep === 3) Tutorial.advance(state, 4)
   const upgName = t('upgrade.' + upgradeId + '.name')
   const upgDesc = upg.portalId === 'click'
     ? (upg.prodMinutes
@@ -222,6 +240,8 @@ function activateAbility(abilityId) {
     const ast = state.abilities[abilityId]
     UI.showNotification(t('notif.ability_levelup', { name: t('ability.' + abilityId + '.name'), level: ast.level }), 'unlock')
   }
+
+  state.missions.daily.abilitiesUsed++
 
   UI.renderAbilities(state)
   Analytics.track('ability_used', { abilityId })
@@ -286,6 +306,8 @@ function init() {
   UI.build()
   UI.renderAll(state)
   Tutorial._render(state)
+  UI.renderMissions(state)
+  UI.renderNextObjective(state)
 
   SaveManager.setupAutoSave(() => state)
 

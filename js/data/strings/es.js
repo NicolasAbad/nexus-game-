@@ -106,7 +106,9 @@ export const STRINGS_ES = {
   // ── Tutorial ────────────────────────────────────────────────────────────────
   'tutorial.step0': '⬡ Hacé click en el Nexo para generar tu primera Energía',
   'tutorial.step1': '✦ ¡Comprá tu primer Portal para automatizar la producción!',
-  'tutorial.step2': '⚙ Comprá más portales — cuando tengas suficientes, aparecerán Mejoras',
+  'tutorial.step2': '⚙ Comprá más portales — pronto aparecerán Mejoras',
+  'tutorial.step3': '⬆ ¡Comprá una Mejora para multiplicar tu producción!',
+  'tutorial.step4': '✓ Tus portales trabajan mientras estás offline — ¡bienvenido al NEXO!',
 
   // ── HUD ─────────────────────────────────────────────────────────────────────
   'ui.hud.save':          'Guardar',
@@ -146,6 +148,70 @@ export const STRINGS_ES = {
   'modal.confirm.ok':         'Confirmar',
   'modal.reset.message':      '¿Seguro? Se borrará todo el progreso.',
 
+  // ── Misiones — UI ────────────────────────────────────────────────────────────
+  'ui.section.missions':    'Misiones',
+  'ui.missions.story':      'Historia',
+  'ui.missions.daily':      'Diarias',
+  'ui.missions.weekly':     'Semanal',
+  'ui.missions.next_obj':   'Próximo Objetivo',
+  'ui.missions.completed':  '¡Completado!',
+  'ui.missions.resets_in':  'Reinicia en {time}',
+  'ui.missions.reward':     '+{energy} Energía',
+
+  // ── Misiones — historia ───────────────────────────────────────────────────────
+  'mission.h1.title':  'Primer Contacto',
+  'mission.h1.desc':   'Tocá el Nexo por primera vez',
+  'mission.h2.title':  'Primera Cosecha',
+  'mission.h2.desc':   'Generá 100 de Energía total',
+  'mission.h3.title':  'Primer Puente',
+  'mission.h3.desc':   'Abrí tu primer portal dimensional',
+  'mission.h4.title':  'Pequeño Ejército',
+  'mission.h4.desc':   'Tenés 5 portales en total',
+  'mission.h5.title':  'Potenciado',
+  'mission.h5.desc':   'Comprá tu primera Mejora',
+  'mission.h6.title':  'Flujo Constante',
+  'mission.h6.desc':   'Alcanzá 1/s de producción',
+  'mission.h7.title':  'Hacia las Profundidades',
+  'mission.h7.desc':   'Desbloqueá el Portal Abismal',
+  'mission.h8.title':  'Poder Creciente',
+  'mission.h8.desc':   'Generá 10,000 de Energía total',
+  'mission.h9.title':  'Ejército Dimensional',
+  'mission.h9.desc':   'Tenés 25 portales en total',
+  'mission.h10.title': 'Triple Poder',
+  'mission.h10.desc':  'Comprá 3 Mejoras',
+  'mission.h11.title': 'Distorsión Temporal',
+  'mission.h11.desc':  'Desbloqueá el Portal Temporal',
+  'mission.h12.title': 'Imparable',
+  'mission.h12.desc':  'Alcanzá 100/s de producción',
+  'mission.h13.title': 'Ejército del Nexo',
+  'mission.h13.desc':  'Tenés 50 portales en total',
+  'mission.h14.title': 'Viajero del Vacío',
+  'mission.h14.desc':  'Desbloqueá el Portal del Vacío',
+  'mission.h15.title': 'Millonario',
+  'mission.h15.desc':  'Generá 1,000,000 de Energía total',
+  'mission.h16.title': 'Hiperproductor',
+  'mission.h16.desc':  'Alcanzá 1,000/s de producción',
+  'mission.h17.title': 'Centenario',
+  'mission.h17.desc':  'Tenés 100 portales en total',
+  'mission.h18.title': 'Cazador de Estrellas',
+  'mission.h18.desc':  'Desbloqueá el Portal Celestial',
+  'mission.h19.title': 'Cien Millones',
+  'mission.h19.desc':  'Generá 100,000,000 de Energía total',
+  'mission.h20.title': 'Maestro Dimensional',
+  'mission.h20.desc':  'Alcanzá 10,000/s de producción',
+
+  // ── Misiones — diarias ───────────────────────────────────────────────────────
+  'mission.d1.title': 'Clicks del Día',
+  'mission.d1.desc':  'Hacé click en el Nexo 100 veces hoy',
+  'mission.d2.title': 'Expansión Rápida',
+  'mission.d2.desc':  'Comprá 25 portales hoy',
+  'mission.d3.title': 'Día de Habilidades',
+  'mission.d3.desc':  'Usá una habilidad 3 veces hoy',
+
+  // ── Misiones — semanal ───────────────────────────────────────────────────────
+  'mission.w1.title': 'Expansión Semanal',
+  'mission.w1.desc':  'Comprá 100 portales esta semana',
+
   // ── Sinergias ────────────────────────────────────────────────────────────────
   'synergy.infernal_depths.name':       'Profundidades Infernales',
   'synergy.frozen_void.name':           'Vacío Congelado',
@@ -161,5 +227,6 @@ export const STRINGS_ES = {
   'notif.ability_daily_limit':'Límite diario alcanzado — volvé mañana',
   'notif.pulso_energy':       'Pulso Nexo — +{energy} Energía',
   'notif.synergy_activated':  '⚡ ¡Sinergia {name} activada!',
+  'notif.mission_complete':   '✓ {title}',
   'notif.saved':              'Partida guardada',
 }

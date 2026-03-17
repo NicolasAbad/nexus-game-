@@ -676,6 +676,109 @@ body {
   box-shadow: 0 0 16px rgba(255,68,102,0.2);
 }
 
+/* ── MISSIONS ── */
+#next-objective {
+  background: linear-gradient(135deg, rgba(0,212,255,0.05), rgba(0,212,255,0.01));
+  border: 1px solid rgba(0,212,255,0.2);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+}
+.next-obj-label {
+  display: block;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+.next-obj-title {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.next-obj-bar-wrap {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.next-obj-bar {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+.mission-group-header {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  color: var(--text-dim);
+  padding: 14px 0 6px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.mission-group-header .reset-timer {
+  font-size: 0.62rem;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+}
+
+.mission-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 6px;
+  transition: border-color 0.2s;
+}
+.mission-card.done {
+  opacity: 0.4;
+  border-style: dashed;
+}
+.mission-card:not(.done) { border-color: var(--border); }
+
+.mission-body { flex: 1; min-width: 0; }
+.mission-title {
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.mission-card.done .mission-title::after { content: ' ✓'; color: var(--success); }
+.mission-desc {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+.mission-bar-wrap {
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+.mission-bar {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.mission-reward {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--energy-color);
+  white-space: nowrap;
+  padding-top: 2px;
+}
+
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar               { width: 5px; }
 ::-webkit-scrollbar-track         { background: var(--bg-deep); }

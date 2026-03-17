@@ -3,7 +3,7 @@
 
 import { t } from '../utils/i18n.js'
 
-const TUTORIAL_STEP_COUNT = 3  // índices 0-2; paso 3 = null (ocultar)
+const TUTORIAL_STEP_COUNT = 5  // índices 0-4; step -1 = completado
 
 export const Tutorial = {
   advance(state, toStep) {
@@ -11,6 +11,12 @@ export const Tutorial = {
     if (toStep <= state.tutorialStep) return
     state.tutorialStep = toStep
     this._render(state)
+    // Step 4 es solo informativo — se auto-completa después de 4s
+    if (toStep === 4) {
+      setTimeout(() => {
+        if (state.tutorialStep === 4) this.complete(state)
+      }, 4000)
+    }
   },
 
   complete(state) {

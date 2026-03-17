@@ -4,7 +4,7 @@ export const SAVE_KEY         = 'nexus_save_v1'   // misma key para cargar saves
 export const SAVE_INTERVAL_MS = 10_000
 export const MIN_OFFLINE_SECS = 30
 export const UI_TICK_MS       = 100
-export const CURRENT_VERSION  = 5
+export const CURRENT_VERSION  = 6
 
 export function createInitialState() {
   return {
@@ -51,6 +51,23 @@ export function createInitialState() {
       resonancia:     { unlocked: false, level: 1, exp: 0, lastUsed: 0, activeUntil: 0, usesToday: 0, dailyReset: 0 },
     },
 
+    // Misiones
+    missions: {
+      history: {},
+      daily: {
+        lastReset:     0,
+        completed:     {},
+        clicks:        0,
+        portalsBought: 0,
+        abilitiesUsed: 0,
+      },
+      weekly: {
+        lastReset:     0,
+        completed:     {},
+        portalsBought: 0,
+      },
+    },
+
     // Meta
     lastSave:     Date.now(),
     tutorialStep: 0,
@@ -91,6 +108,17 @@ export function migrateState(state) {
       resonancia:     { ...defaultAst },
     }
     state.version = 4
+  }
+
+  if (v < 6) {
+    if (!state.missions) {
+      state.missions = {
+        history: {},
+        daily:   { lastReset: 0, completed: {}, clicks: 0, portalsBought: 0, abilitiesUsed: 0 },
+        weekly:  { lastReset: 0, completed: {}, portalsBought: 0 },
+      }
+    }
+    state.version = 6
   }
 
   if (v < 5) {

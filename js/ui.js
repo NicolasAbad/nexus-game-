@@ -8,6 +8,8 @@ import { Production }    from './core/production.js'
 import { Abilities }     from './systems/abilities.js'
 import { fmt, fmtTime }  from './utils/format.js'
 import { t, i18n }       from './utils/i18n.js'
+import { MissionSystem } from './systems/missions.js'
+import { HISTORY_MISSIONS, DAILY_MISSIONS, WEEKLY_MISSION } from './data/missions.js'
 
 // Callbacks inyectados desde game.js via UI.init()
 let _actions = {}
@@ -31,6 +33,7 @@ export const UI = {
     this._buildPortals()
     this._buildUpgrades()
     this._buildAbilities()
+    this._buildMissions()
     this._bindButtons()
   },
 
@@ -188,6 +191,13 @@ export const UI = {
     })
   },
 
+  _buildMissions() {
+    // El contenido se renderiza dinámicamente en renderMissions()
+    // Solo limpiamos el contenedor si existe
+    const list = document.getElementById('missions-list')
+    if (list) list.innerHTML = ''
+  },
+
   // ── Renders ───────────────────────────────────────────────────────────────
   renderAll(state) {
     this.renderResources(state, Abilities.getProductionMultiplier(state))
@@ -195,6 +205,8 @@ export const UI = {
     this.renderUpgradesSection(state)
     this.renderAffordability(state)
     this.renderAbilities(state)
+    this.renderMissions(state)
+    this.renderNextObjective(state)
   },
 
   renderResources(state, abilityMult = 1) {
@@ -441,6 +453,85 @@ export const UI = {
       el.style.transition = 'opacity 0.4s'
       setTimeout(() => el.remove(), 400)
     }, 3200)
+  },
+
+  // ── Misiones ──────────────────────────────────────────────────────────────
+  renderMissions(state) {
+    const list = document.getElementById('missions-list')
+    if (!list) return
+    list.innerHTML = ''
+
+    // ── Historia ──────────────────────────────────────────────────────────
+    const storyCount = MissionSystem.historyCount(state)
+    const storyHeader = document.createElement('div')
+    storyHeader.className = 'mission-group-header'
+    storyHeader.textContent = `${t('ui.missions.story')} ${storyCount.done}/${storyCount.total}`
+    list.appendChild(storyHeader)
+
+    HISTORY_MISSIONS.forEach(m => {
+      const done = !!state.missions.history[m.id]
+      const prog = done ? { current: 1, target: 1 } : MissionSystem.getProgress(state, m)
+      list.appendChild(this._missionCard(m.id, done, prog))
+    })
+
+    // ── Diarias ───────────────────────────────────────────────────────────
+    const dailyCount = MissionSystem.dailyCount(state)
+    const dailyMs    = MissionSystem.dailyTimeRemaining()
+    const dailyHeader = document.createElement('div')
+    dailyHeader.className = 'mission-group-header'
+    dailyHeader.textContent = `${t('ui.missions.daily')} ${dailyCount.done}/${dailyCount.total} · ${t('ui.missions.resets_in', { time: fmtTime(Math.floor(dailyMs / 1000)) })}`
+    list.appendChild(dailyHeader)
+
+    DAILY_MISSIONS.forEach(m => {
+      const done = !!state.missions.daily.completed[m.id]
+      const prog = done ? { current: 1, target: 1 } : MissionSystem.getProgress(state, m)
+      list.appendChild(this._missionCard(m.id, done, prog))
+    })
+
+    // ── Semanal ───────────────────────────────────────────────────────────
+    const weeklyMs   = MissionSystem.weeklyTimeRemaining()
+    const weeklyDone = MissionSystem.weeklyDone(state)
+    const weeklyHeader = document.createElement('div')
+    weeklyHeader.className = 'mission-group-header'
+    weeklyHeader.textContent = `${t('ui.missions.weekly')} · ${t('ui.missions.resets_in', { time: fmtTime(Math.floor(weeklyMs / 1000)) })}`
+    list.appendChild(weeklyHeader)
+
+    const wProg = weeklyDone ? { current: 1, target: 1 } : MissionSystem.getProgress(state, WEEKLY_MISSION)
+    list.appendChild(this._missionCard(WEEKLY_MISSION.id, weeklyDone, wProg))
+  },
+
+  _missionCard(id, done, prog) {
+    const card = document.createElement('div')
+    card.className = `mission-card${done ? ' done' : ''}`
+    const pct = prog.target > 0 ? Math.min(100, Math.round((prog.current / prog.target) * 100)) : 0
+    card.innerHTML = `
+      <div class="mission-body">
+        <div class="mission-title">${t('mission.' + id + '.title')}</div>
+        <div class="mission-desc">${t('mission.' + id + '.desc')}</div>
+        ${!done ? `
+          <div class="mission-bar-wrap">
+            <div class="mission-bar" style="width:${pct}%"></div>
+          </div>
+        ` : ''}
+      </div>
+    `
+    return card
+  },
+
+  // ── Próximo objetivo ──────────────────────────────────────────────────────
+  renderNextObjective(state) {
+    const el = document.getElementById('next-objective')
+    if (!el) return
+    const next = MissionSystem.getNextHistory(state)
+    if (!next) { el.style.display = 'none'; return }
+    const prog = MissionSystem.getProgress(state, next)
+    const pct  = prog.target > 0 ? Math.min(100, Math.round((prog.current / prog.target) * 100)) : 0
+    el.style.display = 'block'
+    el.innerHTML = `
+      <span class="next-obj-label">${t('ui.missions.next_obj')}</span>
+      <span class="next-obj-title">${t('mission.' + next.id + '.title')}: ${t('mission.' + next.id + '.desc')}</span>
+      <div class="next-obj-bar-wrap"><div class="next-obj-bar" style="width:${pct}%"></div></div>
+    `
   },
 
   // ── Partícula de click ────────────────────────────────────────────────────

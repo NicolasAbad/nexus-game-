@@ -106,7 +106,9 @@ export const STRINGS_EN = {
   // ── Tutorial ────────────────────────────────────────────────────────────────
   'tutorial.step0': '⬡ Click the Nexus to generate your first Energy',
   'tutorial.step1': '✦ Buy your first Portal to automate production!',
-  'tutorial.step2': '⚙ Buy more portals — once you have enough, Upgrades will appear',
+  'tutorial.step2': '⚙ Buy more portals — Upgrades will appear soon',
+  'tutorial.step3': '⬆ Buy an Upgrade to multiply your production!',
+  'tutorial.step4': '✓ Your portals work while you\'re away — welcome to NEXUS!',
 
   // ── HUD ─────────────────────────────────────────────────────────────────────
   'ui.hud.save':          'Save',
@@ -146,6 +148,70 @@ export const STRINGS_EN = {
   'modal.confirm.ok':         'Confirm',
   'modal.reset.message':      'Are you sure? All progress will be lost.',
 
+  // ── Missions — UI ────────────────────────────────────────────────────────────
+  'ui.section.missions':    'Missions',
+  'ui.missions.story':      'Story',
+  'ui.missions.daily':      'Daily',
+  'ui.missions.weekly':     'Weekly',
+  'ui.missions.next_obj':   'Next Objective',
+  'ui.missions.completed':  'Completed!',
+  'ui.missions.resets_in':  'Resets in {time}',
+  'ui.missions.reward':     '+{energy} Energy',
+
+  // ── Missions — history ────────────────────────────────────────────────────────
+  'mission.h1.title':  'First Contact',
+  'mission.h1.desc':   'Click the Nexus for the first time',
+  'mission.h2.title':  'Early Harvest',
+  'mission.h2.desc':   'Generate 100 total Energy',
+  'mission.h3.title':  'First Bridge',
+  'mission.h3.desc':   'Open your first dimensional portal',
+  'mission.h4.title':  'Small Army',
+  'mission.h4.desc':   'Own 5 portals in total',
+  'mission.h5.title':  'Power Boost',
+  'mission.h5.desc':   'Buy your first Upgrade',
+  'mission.h6.title':  'Steady Flow',
+  'mission.h6.desc':   'Reach 1/s production',
+  'mission.h7.title':  'Into the Deep',
+  'mission.h7.desc':   'Unlock the Abyssal Portal',
+  'mission.h8.title':  'Growing Power',
+  'mission.h8.desc':   'Generate 10,000 total Energy',
+  'mission.h9.title':  'Dimensional Army',
+  'mission.h9.desc':   'Own 25 portals in total',
+  'mission.h10.title': 'Triple Power',
+  'mission.h10.desc':  'Buy 3 Upgrades',
+  'mission.h11.title': 'Time Warped',
+  'mission.h11.desc':  'Unlock the Temporal Portal',
+  'mission.h12.title': 'Unstoppable',
+  'mission.h12.desc':  'Reach 100/s production',
+  'mission.h13.title': 'Nexus Army',
+  'mission.h13.desc':  'Own 50 portals in total',
+  'mission.h14.title': 'Void Walker',
+  'mission.h14.desc':  'Unlock the Void Portal',
+  'mission.h15.title': 'Millionaire',
+  'mission.h15.desc':  'Generate 1,000,000 total Energy',
+  'mission.h16.title': 'Hyperproducer',
+  'mission.h16.desc':  'Reach 1,000/s production',
+  'mission.h17.title': 'Centennial',
+  'mission.h17.desc':  'Own 100 portals in total',
+  'mission.h18.title': 'Star Chaser',
+  'mission.h18.desc':  'Unlock the Celestial Portal',
+  'mission.h19.title': 'Hundred Millions',
+  'mission.h19.desc':  'Generate 100,000,000 total Energy',
+  'mission.h20.title': 'Dimensional Master',
+  'mission.h20.desc':  'Reach 10,000/s production',
+
+  // ── Missions — daily ─────────────────────────────────────────────────────────
+  'mission.d1.title': 'Daily Clicks',
+  'mission.d1.desc':  'Click the Nexus 100 times today',
+  'mission.d2.title': 'Portal Rush',
+  'mission.d2.desc':  'Buy 25 portals today',
+  'mission.d3.title': 'Ability Day',
+  'mission.d3.desc':  'Use an ability 3 times today',
+
+  // ── Missions — weekly ────────────────────────────────────────────────────────
+  'mission.w1.title': 'Weekly Expansion',
+  'mission.w1.desc':  'Buy 100 portals this week',
+
   // ── Synergies ────────────────────────────────────────────────────────────────
   'synergy.infernal_depths.name':       'Infernal Depths',
   'synergy.frozen_void.name':           'Frozen Void',
@@ -161,5 +227,6 @@ export const STRINGS_EN = {
   'notif.ability_daily_limit':'Daily limit reached — come back tomorrow',
   'notif.pulso_energy':       'Nexus Pulse — +{energy} Energy',
   'notif.synergy_activated':  '⚡ Synergy {name} activated!',
+  'notif.mission_complete':   '✓ {title}',
   'notif.saved':              'Game saved',
 }
