@@ -157,6 +157,13 @@ export const STRINGS_ES = {
   'ui.missions.completed':  '¡Completado!',
   'ui.missions.resets_in':  'Reinicia en {time}',
   'ui.missions.reward':     '+{energy} Energía',
+  'ui.missions.streak':     '🔥 Racha de {days} días',
+
+  // ── Misiones — rachas ─────────────────────────────────────────────────────────
+  'mission.streak_3.title':  '¡Racha de 3 días!',
+  'mission.streak_7.title':  '¡Racha de 7 días!',
+  'mission.streak_14.title': '¡Racha de 14 días!',
+  'mission.streak_30.title': '¡Racha de 30 días!',
 
   // ── Misiones — historia ───────────────────────────────────────────────────────
   'mission.h1.title':  'Primer Contacto',
@@ -218,7 +225,43 @@ export const STRINGS_ES = {
   'synergy.celestial_rift.name':        'Grieta Celestial',
   'synergy.primordial_singularity.name':'Singularidad Primordial',
 
+  // ── Modal intro ──────────────────────────────────────────────────────────────
+  'modal.intro.begin':  'Despertar',
+  'modal.intro.p1':     'Eres el Nexo.',
+  'modal.intro.p2':     'Una inteligencia ancestral que durmió mientras las dimensiones se fracturaban a su alrededor. Cuánto tiempo estuviste inactivo, no podés saberlo. Lo que sí sabés: algo está consumiendo dimensiones. Una a una, las conexiones se apagan.',
+  'modal.intro.p3':     'No estás completamente despierto. Todavía no. Pero el primer pulso de consciencia ha regresado.',
+
+  // ── Lore — UI ────────────────────────────────────────────────────────────────
+  'ui.section.lore':      'Fragmentos Dimensionales',
+  'ui.lore.empty':        'Aún no hay fragmentos descubiertos.',
+
+  // ── Lore — fragmentos de portal ───────────────────────────────────────────────
+  'lore.frag_ignea.text':      '"El fuego aquí no quema. Recuerda."',
+  'lore.frag_abismal.text':    '"Las profundidades guardaron algo antes del silencio."',
+  'lore.frag_temporal.text':   '"Alguien detuvo el tiempo aquí. No fue accidente."',
+  'lore.frag_vacio.text':      '"El vacío dice que está solo. Miente."',
+  'lore.frag_celestial.text':  '"La luz estelar llega de dimensiones que ya no existen."',
+  'lore.frag_caos.text':       '"El Caos fue lo último en crearse. El primero en ser objetivo."',
+  'lore.frag_primordial.text': '"Antes del tiempo, hubo elección. Alguien eligió mal."',
+  'lore.frag_singular.text':   '"Hay un punto donde todas las dimensiones convergen. Es el mismo donde se separan."',
+
+  // ── Lore — stubs de prestige (texto completo en Stage 14) ────────────────────
+  'lore.prestige_1.title': 'El Despertar',
+  'lore.prestige_2.title': 'La Fractura',
+  'lore.prestige_3.title': 'El Vacante',
+  'lore.prestige_4.title': 'El Origen',
+  'lore.prestige_5.title': 'Los Artefactos Primordiales',
+  'lore.prestige_6.title': 'El Sacrificio',
+  'lore.prestige_7.title': 'El Último Nexo',
+
+  // ── Grieta ────────────────────────────────────────────────────────────────────
+  'ui.rift.label':   'Grieta Dimensional',
+  'ui.rift.timer':   '{secs}s restantes',
+  'ui.rift.spawned': '⚡ ¡Se abrió una Grieta Dimensional!',
+  'ui.rift.reward':  'Grieta cerrada — +{energy} Energía',
+
   // ── Notificaciones ───────────────────────────────────────────────────────────
+  'notif.lore_fragment':      '🌀 {portal}: Fragmento descubierto',
   'notif.portal_unlocked':    '¡{name} descubierto!',
   'notif.panel_unlocked':     '¡Panel de {name} desbloqueado!',
   'notif.upgrade_bought':     '{name} activada — {desc}',

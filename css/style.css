@@ -779,6 +779,146 @@ body {
   padding-top: 2px;
 }
 
+/* ── INTRO MODAL ── */
+#intro-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.93);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#intro-modal-box {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-bright);
+  border-radius: 20px;
+  padding: 48px 40px 40px;
+  max-width: 480px;
+  width: 92%;
+  text-align: center;
+  box-shadow: 0 0 80px rgba(0,212,255,0.12);
+  animation: modal-in 0.4s ease;
+}
+#intro-modal-title {
+  font-size: 2.6rem;
+  font-weight: 900;
+  letter-spacing: 14px;
+  color: var(--accent);
+  text-shadow: 0 0 40px rgba(0,212,255,0.5);
+  margin-bottom: 6px;
+}
+#intro-modal-subtitle {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: var(--text-dim);
+  margin-bottom: 32px;
+}
+#intro-modal-body {
+  text-align: left;
+  margin-bottom: 32px;
+}
+#intro-modal-body p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.85;
+  margin-bottom: 14px;
+}
+#intro-modal-body p:last-child { margin-bottom: 0; }
+#intro-modal-body p:first-child {
+  font-size: 1rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ── DIMENSIONAL RIFT ── */
+#rift-container {
+  padding: 12px 12px 0;
+}
+.btn-rift {
+  width: 100%;
+  background: rgba(0,212,255,0.04);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: background 0.2s, box-shadow 0.2s;
+  animation: rift-pulse 2s ease-in-out infinite;
+}
+.btn-rift:hover {
+  background: rgba(0,212,255,0.1);
+  box-shadow: 0 0 24px rgba(0,212,255,0.2);
+}
+#rift-icon {
+  font-size: 1.6rem;
+  animation: rift-spin 5s linear infinite;
+  line-height: 1;
+}
+.rift-body { flex: 1; text-align: left; }
+.rift-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+#rift-timer {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+@keyframes rift-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(0,212,255,0.1); }
+  50%       { box-shadow: 0 0 22px rgba(0,212,255,0.3); }
+}
+@keyframes rift-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── LORE FRAGMENTS ── */
+.lore-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left-width: 3px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: opacity 0.2s;
+}
+.lore-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+  padding-top: 2px;
+  flex-shrink: 0;
+}
+.lore-body { flex: 1; min-width: 0; }
+.lore-portal {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 4px;
+}
+.lore-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  line-height: 1.65;
+}
+.lore-empty {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 20px 0;
+  font-style: italic;
+}
+
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar               { width: 5px; }
 ::-webkit-scrollbar-track         { background: var(--bg-deep); }

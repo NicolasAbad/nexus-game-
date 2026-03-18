@@ -10,6 +10,9 @@ import { fmt, fmtTime }  from './utils/format.js'
 import { t, i18n }       from './utils/i18n.js'
 import { MissionSystem } from './systems/missions.js'
 import { HISTORY_MISSIONS, DAILY_MISSIONS, WEEKLY_MISSION } from './data/missions.js'
+import { LoreSystem }    from './systems/lore.js'
+import { RiftSystem }    from './systems/rifts.js'
+import { PORTAL_FRAGMENTS } from './data/lore.js'
 
 // Callbacks inyectados desde game.js via UI.init()
 let _actions = {}
@@ -35,6 +38,7 @@ export const UI = {
     this._buildAbilities()
     this._buildMissions()
     this._bindButtons()
+    this._bindRiftButton()
   },
 
   _bindButtons() {
@@ -64,6 +68,28 @@ export const UI = {
     document.getElementById('offline-modal-close').addEventListener('click', () => {
       document.getElementById('offline-modal').style.display = 'none'
     })
+  },
+
+  _bindRiftButton() {
+    const btn = document.getElementById('btn-rift')
+    if (btn) btn.addEventListener('click', () => _actions.clickRift())
+  },
+
+  // ── Intro modal ───────────────────────────────────────────────────────────
+  showIntroModal(onClose) {
+    const modal = document.getElementById('intro-modal')
+    const body  = document.getElementById('intro-modal-body')
+    const btn   = document.getElementById('intro-modal-begin')
+    if (!modal || !btn) return
+
+    const keys = ['modal.intro.p1', 'modal.intro.p2', 'modal.intro.p3']
+    body.innerHTML = keys.map(k => `<p>${t(k)}</p>`).join('')
+    modal.style.display = 'flex'
+
+    btn.onclick = () => {
+      modal.style.display = 'none'
+      onClose()
+    }
   },
 
   _buildBuyMode() {
@@ -207,6 +233,8 @@ export const UI = {
     this.renderAbilities(state)
     this.renderMissions(state)
     this.renderNextObjective(state)
+    this.renderLorePanel(state)
+    this.renderRift(state)
   },
 
   renderResources(state, abilityMult = 1) {
@@ -475,11 +503,13 @@ export const UI = {
     })
 
     // ── Diarias ───────────────────────────────────────────────────────────
-    const dailyCount = MissionSystem.dailyCount(state)
-    const dailyMs    = MissionSystem.dailyTimeRemaining()
+    const dailyCount  = MissionSystem.dailyCount(state)
+    const dailyMs     = MissionSystem.dailyTimeRemaining()
+    const streak      = MissionSystem.getStreak(state)
+    const streakText  = streak > 0 ? ` · ${t('ui.missions.streak', { days: streak })}` : ''
     const dailyHeader = document.createElement('div')
     dailyHeader.className = 'mission-group-header'
-    dailyHeader.textContent = `${t('ui.missions.daily')} ${dailyCount.done}/${dailyCount.total} · ${t('ui.missions.resets_in', { time: fmtTime(Math.floor(dailyMs / 1000)) })}`
+    dailyHeader.textContent = `${t('ui.missions.daily')} ${dailyCount.done}/${dailyCount.total} · ${t('ui.missions.resets_in', { time: fmtTime(Math.floor(dailyMs / 1000)) })}${streakText}`
     list.appendChild(dailyHeader)
 
     DAILY_MISSIONS.forEach(m => {
@@ -532,6 +562,44 @@ export const UI = {
       <span class="next-obj-title">${t('mission.' + next.id + '.title')}: ${t('mission.' + next.id + '.desc')}</span>
       <div class="next-obj-bar-wrap"><div class="next-obj-bar" style="width:${pct}%"></div></div>
     `
+  },
+
+  // ── Lore panel ───────────────────────────────────────────────────────────
+  renderLorePanel(state) {
+    const section = document.getElementById('section-lore')
+    const list    = document.getElementById('lore-list')
+    if (!section || !list) return
+    const fragments = LoreSystem.getUnlockedFragments(state)
+    if (fragments.length === 0) { section.style.display = 'none'; return }
+    section.style.display = 'block'
+    list.innerHTML = ''
+    fragments.forEach(f => {
+      const portal = PORTAL_DATA.find(p => p.id === f.portalId)
+      const card = document.createElement('div')
+      card.className = 'lore-card'
+      card.style.borderLeftColor = portal?.color || 'var(--accent)'
+      card.innerHTML = `
+        <span class="lore-icon">${portal?.icon || '🌀'}</span>
+        <div class="lore-body">
+          <div class="lore-portal" style="color:${portal?.color || 'var(--accent)'}">${t('portal.' + f.portalId + '.name')}</div>
+          <div class="lore-text">${t('lore.' + f.id + '.text')}</div>
+        </div>
+      `
+      list.appendChild(card)
+    })
+  },
+
+  // ── Dimensional Rift ──────────────────────────────────────────────────────
+  renderRift(state) {
+    const container = document.getElementById('rift-container')
+    const timer     = document.getElementById('rift-timer')
+    if (!container) return
+    if (state.rifts.active) {
+      container.style.display = 'block'
+      if (timer) timer.textContent = t('ui.rift.timer', { secs: RiftSystem.timeRemaining(state) })
+    } else {
+      container.style.display = 'none'
+    }
   },
 
   // ── Partícula de click ────────────────────────────────────────────────────

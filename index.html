@@ -65,6 +65,17 @@
           <div class="abilities-title" data-i18n="ui.section.abilities">Habilidades</div>
           <div id="abilities-list"></div>
         </div>
+
+        <!-- Dimensional Rift (shown when active) -->
+        <div id="rift-container" style="display:none">
+          <button id="btn-rift" class="btn-rift">
+            <div id="rift-icon">🌀</div>
+            <div class="rift-body">
+              <div class="rift-label" data-i18n="ui.rift.label">Dimensional Rift</div>
+              <div id="rift-timer">30s</div>
+            </div>
+          </button>
+        </div>
       </aside>
 
       <!-- Right: Shop -->
@@ -103,6 +114,12 @@
           <div id="missions-list"></div>
         </section>
 
+        <!-- Fragmentos de Lore -->
+        <section id="section-lore" class="shop-section" style="display:none">
+          <h2 class="section-title" data-i18n="ui.section.lore">Dimensional Fragments</h2>
+          <div id="lore-list"></div>
+        </section>
+
       </main>
     </div>
 
@@ -115,6 +132,16 @@
         <div id="offline-modal-title" data-i18n="modal.offline.title">¡Bienvenido de vuelta!</div>
         <div id="offline-modal-body"></div>
         <button id="offline-modal-close" class="btn-primary" data-i18n="modal.offline.collect">Recolectar</button>
+      </div>
+    </div>
+
+    <!-- ── MODAL INTRO ── -->
+    <div id="intro-modal" style="display:none">
+      <div id="intro-modal-box">
+        <div id="intro-modal-title">NEXUS</div>
+        <div id="intro-modal-subtitle" data-i18n="ui.hud.subtitle">Lords of Dimensions</div>
+        <div id="intro-modal-body"></div>
+        <button id="intro-modal-begin" class="btn-primary" data-i18n="modal.intro.begin">Awaken</button>
       </div>
     </div>
 

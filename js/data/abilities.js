@@ -8,7 +8,7 @@
 // Usos gratuitos por día: dailyFree. Extras con anuncio: dailyAd (Stage 19).
 // Cooldown en horas.
 
-export const EXP_THRESHOLDS = [0, 15, 55, 135, 285]  // índice 0=L1 … 4=L5
+export const EXP_THRESHOLDS = [0, 10, 30, 75, 150]  // índice 0=L1 … 4=L5
 
 export const ABILITY_DATA = [
   {

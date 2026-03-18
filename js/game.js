@@ -1,5 +1,5 @@
 // ============================================================
-//  NEXUS: Lords of Dimensions — Stage 3
+//  NEXUS: Lords of Dimensions — Stage 6
 //  Orquestador principal
 // ============================================================
 
@@ -20,6 +20,8 @@ import { Tutorial }      from './systems/tutorial.js'
 import { Abilities }     from './systems/abilities.js'
 import { Synergies }     from './systems/synergies.js'
 import { MissionSystem } from './systems/missions.js'
+import { LoreSystem }    from './systems/lore.js'
+import { RiftSystem }    from './systems/rifts.js'
 
 // ── Estado global ─────────────────────────────────────────────────────────────
 let state       = null
@@ -115,6 +117,23 @@ function loop(ts) {
       UI.renderMissions(state)
     }
     UI.renderNextObjective(state)
+
+    // Lore fragments
+    const freshFragments = LoreSystem.checkPortalFragments(state)
+    if (freshFragments.length > 0) {
+      freshFragments.forEach(f => {
+        const portalName = t('portal.' + f.portalId + '.name')
+        UI.showNotification(t('notif.lore_fragment', { portal: portalName }), 'unlock')
+      })
+      UI.renderLorePanel(state)
+    }
+
+    // Dimensional Rifts
+    const riftEvent = RiftSystem.tick(state)
+    if (riftEvent === 'spawned') {
+      UI.showNotification(t('ui.rift.spawned'), 'unlock')
+    }
+    UI.renderRift(state)
 
     _lastUITick = ts
   }
@@ -248,6 +267,17 @@ function activateAbility(abilityId) {
   EventBus.emit('ability_used', { abilityId })
 }
 
+function clickRift() {
+  const baseProd = Production.total(state)
+  const reward = RiftSystem.click(state, baseProd)
+  if (reward) {
+    state.energy            = state.energy.add(reward)
+    state.totalEnergyEarned = state.totalEnergyEarned.add(reward)
+    UI.showNotification(t('ui.rift.reward', { energy: UI.fmtPublic(reward) }), 'success')
+    UI.renderRift(state)
+  }
+}
+
 async function reset() {
   const confirmed = await UI.showConfirm(t('modal.reset.message'))
   if (!confirmed) return
@@ -295,6 +325,7 @@ function init() {
     buyPortalMax,
     buyUpgrade,
     activateAbility,
+    clickRift,
     reset,
     manualSave,
     getState:        () => state,
@@ -308,6 +339,13 @@ function init() {
   Tutorial._render(state)
   UI.renderMissions(state)
   UI.renderNextObjective(state)
+  UI.renderLorePanel(state)
+
+  RiftSystem.scheduleFirst(state)
+
+  if (!state.lore.introSeen) {
+    setTimeout(() => UI.showIntroModal(() => { state.lore.introSeen = true }), 400)
+  }
 
   SaveManager.setupAutoSave(() => state)
 

@@ -157,6 +157,13 @@ export const STRINGS_EN = {
   'ui.missions.completed':  'Completed!',
   'ui.missions.resets_in':  'Resets in {time}',
   'ui.missions.reward':     '+{energy} Energy',
+  'ui.missions.streak':     '🔥 {days}-day streak',
+
+  // ── Missions — streak milestones ─────────────────────────────────────────────
+  'mission.streak_3.title':  '3-Day Streak!',
+  'mission.streak_7.title':  '7-Day Streak!',
+  'mission.streak_14.title': '14-Day Streak!',
+  'mission.streak_30.title': '30-Day Streak!',
 
   // ── Missions — history ────────────────────────────────────────────────────────
   'mission.h1.title':  'First Contact',
@@ -218,7 +225,43 @@ export const STRINGS_EN = {
   'synergy.celestial_rift.name':        'Celestial Rift',
   'synergy.primordial_singularity.name':'Primordial Singularity',
 
+  // ── Intro modal ──────────────────────────────────────────────────────────────
+  'modal.intro.begin':  'Awaken',
+  'modal.intro.p1':     'You are the Nexus.',
+  'modal.intro.p2':     'An ancient intelligence that slept while dimensions fractured around it. How long you were dormant, you cannot know. What you do know: something is consuming dimensions. One by one, the connections are going dark.',
+  'modal.intro.p3':     'You are not fully awake. Not yet. But the first pulse of awareness has returned.',
+
+  // ── Lore — UI ────────────────────────────────────────────────────────────────
+  'ui.section.lore':      'Dimensional Fragments',
+  'ui.lore.empty':        'No fragments discovered yet.',
+
+  // ── Lore — portal fragments ───────────────────────────────────────────────────
+  'lore.frag_ignea.text':      '"Fire here does not burn. It remembers."',
+  'lore.frag_abismal.text':    '"The depths kept something before the silence."',
+  'lore.frag_temporal.text':   '"Someone stopped time here. It was not an accident."',
+  'lore.frag_vacio.text':      '"The Void says it is alone. It lies."',
+  'lore.frag_celestial.text':  '"Starlight arrives from dimensions that no longer exist."',
+  'lore.frag_caos.text':       '"Chaos was the last to be created. The first to be targeted."',
+  'lore.frag_primordial.text': '"Before time, there was a choice. Someone chose wrong."',
+  'lore.frag_singular.text':   '"There is a point where all dimensions converge. It is the same point where they separate."',
+
+  // ── Lore — prestige chapter stubs (full text in Stage 14) ────────────────────
+  'lore.prestige_1.title': 'The Awakening',
+  'lore.prestige_2.title': 'The Fracture',
+  'lore.prestige_3.title': 'The Vacant',
+  'lore.prestige_4.title': 'The Origin',
+  'lore.prestige_5.title': 'The Primordial Artifacts',
+  'lore.prestige_6.title': 'The Sacrifice',
+  'lore.prestige_7.title': 'The Last Nexus',
+
+  // ── Rift ──────────────────────────────────────────────────────────────────────
+  'ui.rift.label':   'Dimensional Rift',
+  'ui.rift.timer':   '{secs}s remaining',
+  'ui.rift.spawned': '⚡ A Dimensional Rift has opened!',
+  'ui.rift.reward':  'Rift closed — +{energy} Energy',
+
   // ── Notifications ────────────────────────────────────────────────────────────
+  'notif.lore_fragment':      '🌀 {portal}: Fragment discovered',
   'notif.portal_unlocked':    '{name} discovered!',
   'notif.panel_unlocked':     '{name} panel unlocked!',
   'notif.upgrade_bought':     '{name} activated — {desc}',

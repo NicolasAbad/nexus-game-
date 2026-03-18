@@ -5,6 +5,14 @@
 
 import { HISTORY_MISSIONS, DAILY_MISSIONS, WEEKLY_MISSION } from '../data/missions.js'
 
+// ── Streak milestone rewards ───────────────────────────────────────────────────
+const STREAK_MILESTONES = {
+  3:  { type: 'productionMinutes', minutes: 10  },
+  7:  { type: 'productionMinutes', minutes: 30  },
+  14: { type: 'productionMinutes', minutes: 90  },
+  30: { type: 'productionMinutes', minutes: 240 },
+}
+
 // ── Helpers de tiempo ──────────────────────────────────────────────────────────
 function todayMidnight() {
   const d = new Date(); d.setHours(0, 0, 0, 0); return d.getTime()
@@ -19,6 +27,11 @@ function thisWeekSunday() {
 function resetIfNeeded(state) {
   const midnight = todayMidnight()
   if (state.missions.daily.lastReset < midnight) {
+    // If last full completion was before yesterday, streak is broken
+    const yesterday = midnight - 86400000
+    if ((state.missions.daily.streakLastCompleted || 0) < yesterday) {
+      state.missions.daily.streakDays = 0
+    }
     state.missions.daily.lastReset    = midnight
     state.missions.daily.completed    = {}
     state.missions.daily.clicks       = 0
@@ -95,6 +108,17 @@ export const MissionSystem = {
       }
     })
 
+    // Streak — check after all daily missions evaluated
+    const allDailyDone = DAILY_MISSIONS.every(m => state.missions.daily.completed[m.id])
+    if (allDailyDone && (state.missions.daily.streakLastCompleted || 0) < todayMidnight()) {
+      state.missions.daily.streakLastCompleted = todayMidnight()
+      state.missions.daily.streakDays = (state.missions.daily.streakDays || 0) + 1
+      const days = state.missions.daily.streakDays
+      if (STREAK_MILESTONES[days]) {
+        completed.push({ id: 'streak_' + days, energyReward: computeReward(STREAK_MILESTONES[days], currentProd) })
+      }
+    }
+
     // Semanal
     if (!state.missions.weekly.completed[WEEKLY_MISSION.id]) {
       if (isMet(WEEKLY_MISSION.trigger, state, currentProd)) {
@@ -143,6 +167,11 @@ export const MissionSystem = {
   },
   weeklyDone(state) {
     return !!state.missions.weekly.completed[WEEKLY_MISSION.id]
+  },
+
+  // Racha actual de días con todas las diarias completadas
+  getStreak(state) {
+    return state.missions.daily.streakDays || 0
   },
 
   // Tiempo restante hasta el próximo reset diario (en ms)
