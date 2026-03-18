@@ -21,6 +21,10 @@
           <span class="resource-label" data-i18n="ui.res.production">Producción</span>
           <span id="res-production" class="resource-value">0/s</span>
         </div>
+        <div class="resource-block" id="crystals-block" style="display:none">
+          <span class="resource-label" data-i18n="ui.res.crystals">💎 Cristales</span>
+          <span id="res-crystals" class="resource-value crystals-value">0</span>
+        </div>
       </div>
       <div id="hud-actions">
         <button id="btn-lang"  class="btn-hud" data-i18n="ui.hud.lang">🌐 ES</button>
@@ -129,6 +133,25 @@
           <div id="lore-list"></div>
         </section>
 
+        <!-- Viajeros -->
+        <section id="section-viajeros" class="shop-section" style="display:none">
+          <h2 class="section-title" data-i18n="ui.section.viajeros">Viajeros</h2>
+          <div id="viajero-tabs" class="viajero-tab-bar">
+            <button class="viajero-tab active" data-tab="guardians" data-i18n="ui.viajero.tab.guardians">Guardians</button>
+            <button class="viajero-tab" data-tab="expeditions" data-i18n="ui.viajero.tab.expeditions">Expeditions</button>
+            <button class="viajero-tab" data-tab="gacha" data-i18n="ui.viajero.tab.gacha">Recruit</button>
+          </div>
+          <div id="viajero-panel-guardians">
+            <div id="viajero-guardians-list"></div>
+          </div>
+          <div id="viajero-panel-expeditions" style="display:none">
+            <div id="viajero-expeditions-list"></div>
+          </div>
+          <div id="viajero-panel-gacha" style="display:none">
+            <div id="viajero-gacha-content"></div>
+          </div>
+        </section>
+
       </main>
     </div>
 
@@ -162,6 +185,15 @@
           <button id="confirm-modal-cancel" class="btn-secondary" data-i18n="modal.confirm.cancel">Cancelar</button>
           <button id="confirm-modal-ok"     class="btn-danger-solid" data-i18n="modal.confirm.ok">Confirmar</button>
         </div>
+      </div>
+    </div>
+
+    <!-- ── MODAL VIAJERO TUTORIAL ── -->
+    <div id="viajero-tutorial-modal" style="display:none">
+      <div id="viajero-tutorial-box">
+        <div id="viajero-tutorial-title" data-i18n="viajero.tutorial.title">A Traveler Has Arrived</div>
+        <div id="viajero-tutorial-body" data-i18n="viajero.tutorial.body"></div>
+        <button id="viajero-tutorial-close" class="btn-primary" data-i18n="viajero.tutorial.close">Understood</button>
       </div>
     </div>
 

@@ -15,6 +15,8 @@ import { RiftSystem }      from './systems/rifts.js'
 import { PORTAL_FRAGMENTS } from './data/lore.js'
 import { PrestigeSystem }  from './systems/prestige.js'
 import { PRESTIGE_NODES }  from './data/prestige.js'
+import { ViajerosSystem }  from './systems/viajeros.js'
+import { VIAJERO_DATA, ARTIFACT_DATA, GACHA_COST_SINGLE, GACHA_COST_TEN } from './data/viajeros.js'
 
 // Callbacks inyectados desde game.js via UI.init()
 let _actions = {}
@@ -41,6 +43,7 @@ export const UI = {
     this._buildMissions()
     this._bindButtons()
     this._bindRiftButton()
+    this._bindViajerotabs()
   },
 
   _bindButtons() {
@@ -65,6 +68,7 @@ export const UI = {
         this._buildUpgrades()
         this._buildAbilities()
         this.renderAll(_actions.getState())
+        this.renderViajeros(_actions.getState())
       })
     }
     document.getElementById('offline-modal-close').addEventListener('click', () => {
@@ -75,6 +79,18 @@ export const UI = {
   _bindRiftButton() {
     const btn = document.getElementById('btn-rift')
     if (btn) btn.addEventListener('click', () => _actions.clickRift())
+  },
+
+  _bindViajerotabs() {
+    const tabBar = document.getElementById('viajero-tabs')
+    if (!tabBar) return
+    tabBar.querySelectorAll('.viajero-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const section = document.getElementById('section-viajeros')
+        if (section) section.dataset.tab = btn.dataset.tab
+        this.renderViajeros(_actions.getState())
+      })
+    })
   },
 
   // ── Intro modal ───────────────────────────────────────────────────────────
@@ -238,6 +254,8 @@ export const UI = {
     this.renderLorePanel(state)
     this.renderRift(state)
     this.renderPrestige(state)
+    this.renderViajeros(state)
+    this.renderCrystals(state)
   },
 
   renderResources(state, abilityMult = 1) {
@@ -250,6 +268,17 @@ export const UI = {
     document.getElementById('click-power').textContent       = fmt(Production.clickPower(state, baseProd))
     document.getElementById('stat-offline-cap').textContent  = fmtTime(PrestigeSystem.getOfflineCapHours(state) * 3600)
     document.getElementById('stat-offline-eff').textContent  = Math.round(state.offlineEfficiency * 100) + '%'
+    this.renderCrystals(state)
+  },
+
+  renderCrystals(state) {
+    const el    = document.getElementById('res-crystals')
+    const block = document.getElementById('crystals-block')
+    if (el) el.textContent = (state.crystals || 0)
+    if (block) {
+      const show = (state.crystals || 0) > 0 || Object.keys(state.viajeros?.roster || {}).length > 0
+      block.style.display = show ? 'flex' : 'none'
+    }
   },
 
   renderPortalCard(portalId, state) {
@@ -736,6 +765,291 @@ export const UI = {
     } else {
       container.style.display = 'none'
     }
+  },
+
+  // ── Viajeros panel ────────────────────────────────────────────────────────
+  renderViajeros(state) {
+    const section = document.getElementById('section-viajeros')
+    if (!section) return
+
+    const owned = ViajerosSystem.getOwnedList(state)
+    if (owned.length === 0) { section.style.display = 'none'; return }
+    section.style.display = 'block'
+
+    // Show Viajero mini-tutorial on first arrival
+    if (!state.viajeros.tutorialSeen && owned.length > 0) {
+      state.viajeros.tutorialSeen = true
+      setTimeout(() => this._showViajerotutorial(), 300)
+    }
+
+    const activeTab = section.dataset.tab || 'guardians'
+    section.dataset.tab = activeTab
+
+    const tabBar = document.getElementById('viajero-tabs')
+    if (tabBar) {
+      tabBar.querySelectorAll('.viajero-tab').forEach(b => {
+        b.classList.toggle('active', b.dataset.tab === activeTab)
+      })
+    }
+
+    document.getElementById('viajero-panel-guardians')?.style.setProperty('display', activeTab === 'guardians' ? 'block' : 'none')
+    document.getElementById('viajero-panel-expeditions')?.style.setProperty('display', activeTab === 'expeditions' ? 'block' : 'none')
+    document.getElementById('viajero-panel-gacha')?.style.setProperty('display', activeTab === 'gacha' ? 'block' : 'none')
+
+    if (activeTab === 'guardians')    this._renderGuardiansTab(state, owned)
+    if (activeTab === 'expeditions')  this._renderExpeditionsTab(state, owned)
+    if (activeTab === 'gacha')        this._renderGachaTab(state, owned)
+  },
+
+  _showViajerotutorial() {
+    const el = document.getElementById('viajero-tutorial-modal')
+    if (!el) return
+    el.style.display = 'flex'
+    document.getElementById('viajero-tutorial-close')?.addEventListener('click', () => {
+      el.style.display = 'none'
+    }, { once: true })
+  },
+
+  _renderGuardiansTab(state, owned) {
+    const container = document.getElementById('viajero-guardians-list')
+    if (!container) return
+    container.innerHTML = ''
+
+    PORTAL_DATA.forEach(p => {
+      if (!(state.portals[p.id] > 0) && !state.unlocks['portal' + p.id[0].toUpperCase() + p.id.slice(1)]) return
+      const assignedId = state.viajeros.assignments[p.id] || null
+      const assignedDef = assignedId ? VIAJERO_DATA.find(v => v.id === assignedId) : null
+
+      const slot = document.createElement('div')
+      slot.className = 'guardian-slot'
+      slot.innerHTML = `
+        <div class="guardian-portal-label" style="color:${p.color}">
+          ${p.icon} ${t('portal.' + p.id + '.name')}
+        </div>
+        <div class="guardian-assigned">
+          ${assignedDef
+            ? `<div class="viajero-mini rarity-${assignedDef.rarity}">
+                 <span class="vj-icon">${assignedDef.icon}</span>
+                 <span class="vj-name">${t('viajero.' + assignedDef.id + '.name')}</span>
+                 <button class="btn-vj-unassign" data-portal="${p.id}">${t('ui.viajero.unassign')}</button>
+               </div>`
+            : `<div class="guardian-empty">${t('ui.viajero.empty_slot')}</div>`
+          }
+        </div>
+      `
+      container.appendChild(slot)
+    })
+
+    // Unassigned guardians available to assign
+    const available = owned.filter(o =>
+      (o.def.role === 'guardian' || o.def.role === 'special' || o.def.role === 'council') &&
+      !ViajerosSystem.isOnExpedition(state, o.id) &&
+      !ViajerosSystem.getAssignment(state, o.id)
+    )
+    if (available.length > 0) {
+      const header = document.createElement('div')
+      header.className = 'viajero-section-header'
+      header.textContent = t('ui.viajero.available_guardians')
+      container.appendChild(header)
+
+      available.forEach(o => {
+        const card = this._viajeroCard(o, state, 'assign')
+        container.appendChild(card)
+      })
+    }
+
+    container.querySelectorAll('.btn-vj-unassign').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const vid = state.viajeros.assignments[btn.dataset.portal]
+        if (vid) {
+          ViajerosSystem.unassignGuardian(state, vid)
+          this.renderViajeros(state)
+        }
+      })
+    })
+
+    container.querySelectorAll('.btn-vj-assign').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this._showAssignModal(state, btn.dataset.viajero)
+      })
+    })
+  },
+
+  _renderExpeditionsTab(state, owned) {
+    const container = document.getElementById('viajero-expeditions-list')
+    if (!container) return
+    container.innerHTML = ''
+
+    const activeExps = state.viajeros.expeditions || []
+
+    // Active expeditions
+    if (activeExps.length > 0) {
+      const header = document.createElement('div')
+      header.className = 'viajero-section-header'
+      header.textContent = t('ui.viajero.active_expeditions')
+      container.appendChild(header)
+
+      activeExps.forEach(exp => {
+        const def  = VIAJERO_DATA.find(v => v.id === exp.viajeroid)
+        if (!def) return
+        const secs = ViajerosSystem.expeditionTimeRemaining(state, exp.viajeroid)
+        const card = document.createElement('div')
+        card.className = 'expedition-card active'
+        card.innerHTML = `
+          <span class="vj-icon">${def.icon}</span>
+          <div class="exp-info">
+            <div class="exp-name">${t('viajero.' + def.id + '.name')}</div>
+            <div class="exp-timer">${t('ui.viajero.returns_in', { time: fmtTime(secs) })}</div>
+          </div>
+        `
+        container.appendChild(card)
+      })
+    }
+
+    // Available explorers
+    const maxSlots  = ViajerosSystem.getExpeditionSlotsMax(state)
+    const usedSlots = activeExps.length
+    const slotsInfo = document.createElement('div')
+    slotsInfo.className = 'expedition-slots-info'
+    slotsInfo.textContent = t('ui.viajero.slots', { used: usedSlots, max: maxSlots })
+    container.appendChild(slotsInfo)
+
+    if (usedSlots < maxSlots) {
+      const available = owned.filter(o =>
+        !ViajerosSystem.isOnExpedition(state, o.id) &&
+        !ViajerosSystem.getAssignment(state, o.id)
+      )
+      if (available.length > 0) {
+        const header2 = document.createElement('div')
+        header2.className = 'viajero-section-header'
+        header2.textContent = t('ui.viajero.send_expedition')
+        container.appendChild(header2)
+
+        available.forEach(o => {
+          const card = this._viajeroCard(o, state, 'send')
+          container.appendChild(card)
+        })
+      }
+    }
+
+    container.querySelectorAll('.btn-vj-send').forEach(btn => {
+      btn.addEventListener('click', () => {
+        _actions.sendExpedition(btn.dataset.viajero)
+      })
+    })
+  },
+
+  _renderGachaTab(state, owned) {
+    const container = document.getElementById('viajero-gacha-content')
+    if (!container) return
+
+    const crystals  = state.crystals || 0
+    const pity      = state.viajeros?.gacha?.pityCount || 0
+    const history   = (state.viajeros?.gacha?.history || []).slice(0, 10)
+
+    const canPull1  = crystals >= GACHA_COST_SINGLE
+    const canPull10 = crystals >= GACHA_COST_TEN
+    const histHtml  = history.map(h => {
+      const def = VIAJERO_DATA.find(v => v.id === h.id)
+      return `<div class="gacha-history-item rarity-${h.rarity}">${def?.icon || '?'} ${t('viajero.' + h.id + '.name')}</div>`
+    }).join('')
+
+    container.innerHTML = `
+      <div class="gacha-crystals">${t('ui.viajero.crystals', { n: crystals })} 💎</div>
+      <div class="gacha-pity">${t('ui.viajero.gacha.pity', { n: pity, max: 80 })}</div>
+      <div class="gacha-buttons">
+        <button class="btn-gacha-pull" id="btn-pull-1" ${canPull1 ? '' : 'disabled'}>
+          ${t('ui.viajero.gacha.pull_1', { cost: GACHA_COST_SINGLE })}
+        </button>
+        <button class="btn-gacha-pull btn-pull-10" id="btn-pull-10" ${canPull10 ? '' : 'disabled'}>
+          ${t('ui.viajero.gacha.pull_10', { cost: GACHA_COST_TEN })}
+        </button>
+      </div>
+      ${!canPull1 ? `<div class="gacha-hint">${t('ui.viajero.gacha.no_crystals')}</div>` : ''}
+      ${history.length > 0 ? `<div class="gacha-history-title">${t('ui.viajero.gacha.recent')}</div><div class="gacha-history">${histHtml}</div>` : ''}
+    `
+
+    container.querySelector('#btn-pull-1')?.addEventListener('click', () => {
+      _actions.gachaPull(1)
+    })
+    container.querySelector('#btn-pull-10')?.addEventListener('click', () => {
+      _actions.gachaPull(10)
+    })
+  },
+
+  _viajeroCard(o, state, action) {
+    const card = document.createElement('div')
+    card.className = `viajero-card rarity-${o.def.rarity}`
+    const isExplorer = o.def.role === 'explorer'
+    const actionBtn = action === 'assign' && !isExplorer
+      ? `<button class="btn-vj-assign btn-vj-action" data-viajero="${o.id}">${t('ui.viajero.assign_guardian')}</button>`
+      : action === 'send'
+        ? `<button class="btn-vj-send btn-vj-action" data-viajero="${o.id}">${t('ui.viajero.send_btn')}</button>`
+        : ''
+    card.innerHTML = `
+      <div class="vj-header">
+        <span class="vj-icon">${o.def.icon}</span>
+        <div class="vj-info">
+          <div class="vj-name">${t('viajero.' + o.id + '.name')}</div>
+          <div class="vj-rarity rarity-label-${o.def.rarity}">${t('viajero.rarity.' + o.def.rarity)}</div>
+          <div class="vj-desc">${t('viajero.' + o.id + '.desc')}</div>
+        </div>
+      </div>
+      <div class="vj-artifacts">
+        ${['head', 'weapon', 'relic'].map(slot => {
+          const instId = o.artifacts?.[slot]
+          const entry  = instId ? state.viajeros.artifacts?.[instId] : null
+          const artDef = entry ? ARTIFACT_DATA.find(a => a.id === entry.defId) : null
+          return `<div class="vj-artifact-slot slot-${slot}" title="${t('ui.viajero.artifact.' + slot)}">
+            ${artDef ? `<span class="art-stars">${'★'.repeat(entry.stars)}</span> ${t('artifact.' + entry.defId + '.name')}` : '—'}
+          </div>`
+        }).join('')}
+      </div>
+      ${actionBtn}
+    `
+    return card
+  },
+
+  _showAssignModal(state, viajeroid) {
+    // Build portal selection options
+    const def = VIAJERO_DATA.find(v => v.id === viajeroid)
+    if (!def) return
+
+    const validPortals = PORTAL_DATA.filter(p =>
+      (state.portals[p.id] > 0) || state.unlocks['portal' + p.id[0].toUpperCase() + p.id.slice(1)]
+    )
+
+    const modal   = document.getElementById('confirm-modal')
+    const msgEl   = document.getElementById('confirm-modal-message')
+    const btnOk   = document.getElementById('confirm-modal-ok')
+    const btnCancel = document.getElementById('confirm-modal-cancel')
+    if (!modal || !msgEl) return
+
+    const body = document.createElement('div')
+    body.innerHTML = `
+      <div class="pm-title">${t('ui.viajero.assign_title', { name: t('viajero.' + viajeroid + '.name') })}</div>
+      <select id="assign-portal-select" class="assign-select">
+        ${validPortals.map(p => `<option value="${p.id}">${p.icon} ${t('portal.' + p.id + '.name')}</option>`).join('')}
+      </select>
+    `
+    msgEl.innerHTML = ''
+    msgEl.appendChild(body)
+    btnOk.textContent     = t('ui.viajero.assign_guardian')
+    btnCancel.textContent = t('modal.confirm.cancel')
+    modal.style.display   = 'flex'
+
+    const cleanup = () => {
+      modal.style.display = 'none'
+      btnOk.textContent     = t('modal.confirm.ok')
+      btnCancel.textContent = t('modal.confirm.cancel')
+      btnOk.onclick = null; btnCancel.onclick = null
+    }
+    btnOk.onclick = () => {
+      const portalId = document.getElementById('assign-portal-select')?.value
+      if (portalId) _actions.assignGuardian(viajeroid, portalId)
+      cleanup()
+    }
+    btnCancel.onclick = () => cleanup()
   },
 
   // ── Partícula de click ────────────────────────────────────────────────────

@@ -155,6 +155,19 @@ export const PrestigeSystem = {
     // Rift schedule persiste
     newState.rifts.nextSpawnAt = oldState.rifts?.nextSpawnAt || 0
 
+    // Viajeros: roster + artifacts persist; assignments + expeditions reset
+    const oldV = oldState.viajeros || {}
+    newState.viajeros = {
+      roster:          { ...(oldV.roster || {}) },
+      assignments:     {},   // portals reset, so re-assign next run
+      expeditions:     [],   // expeditions cancelled on prestige
+      artifacts:       { ...(oldV.artifacts || {}) },
+      gacha:           { ...(oldV.gacha || { pityCount: 0, history: [] }) },
+      tutorialSeen:    oldV.tutorialSeen ?? false,
+      _nextArtifactId: oldV._nextArtifactId || 1,
+    }
+    newState.crystals = oldState.crystals || 0
+
     // Re-apply all tree effects onto fresh state
     Object.keys(newState.prestige.tree).forEach(nodeId => {
       const node = PRESTIGE_NODES.find(n => n.id === nodeId)
@@ -207,6 +220,19 @@ export const PrestigeSystem = {
     const e = node.effect
     if (e.type === 'offline_cap') {
       state.offlineCap = e.hours * 3600
+    }
+    // A1 → grant Kael, A2 → grant Lyra (idempotent)
+    if (e.type === 'viajero_kael') {
+      if (!state.viajeros) return
+      if (!state.viajeros.roster.kael) {
+        state.viajeros.roster.kael = { resonance: 0, artifacts: { head: null, weapon: null, relic: null } }
+      }
+    }
+    if (e.type === 'expedition_slot') {
+      if (!state.viajeros) return
+      if (!state.viajeros.roster.lyra) {
+        state.viajeros.roster.lyra = { resonance: 0, artifacts: { head: null, weapon: null, relic: null } }
+      }
     }
     // Other effects are read dynamically via the getters above
   },

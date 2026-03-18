@@ -4,6 +4,7 @@ import '../utils/decimal.js'
 import { ABILITY_DATA, EXP_THRESHOLDS } from '../data/abilities.js'
 import { PORTAL_DATA }                  from '../data/portals.js'
 import { Production }                   from '../core/production.js'
+import { ViajerosSystem }               from './viajeros.js'
 
 // Retorna el timestamp de medianoche de hoy (inicio del día actual)
 function todayMidnight() {
@@ -48,7 +49,9 @@ export const Abilities = {
     const ast = state.abilities[id]
     if (!ab || !ast || !ast.unlocked) return false
     const lvDef = this.getLevelDef(ab, ast.level)
-    return Date.now() < ast.lastUsed + lvDef.cooldownH * 3600 * 1000
+    const cdReduction = ViajerosSystem.getCdReduction(state)
+    const effectiveCd = lvDef.cooldownH * 3600 * 1000 * (1 - cdReduction)
+    return Date.now() < ast.lastUsed + effectiveCd
   },
 
   isActive(state, id) {
@@ -70,7 +73,9 @@ export const Abilities = {
     const ast = state.abilities[id]
     if (!ab || !ast) return 0
     const lvDef = this.getLevelDef(ab, ast.level)
-    return Math.max(0, (ast.lastUsed + lvDef.cooldownH * 3600 * 1000 - Date.now()) / 1000)
+    const cdReduction = ViajerosSystem.getCdReduction(state)
+    const effectiveCd = lvDef.cooldownH * 3600 * 1000 * (1 - cdReduction)
+    return Math.max(0, (ast.lastUsed + effectiveCd - Date.now()) / 1000)
   },
 
   activeRemaining(state, id) {

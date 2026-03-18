@@ -23,6 +23,7 @@ import { MissionSystem } from './systems/missions.js'
 import { LoreSystem }    from './systems/lore.js'
 import { RiftSystem }    from './systems/rifts.js'
 import { PrestigeSystem } from './systems/prestige.js'
+import { ViajerosSystem } from './systems/viajeros.js'
 
 // ── Estado global ─────────────────────────────────────────────────────────────
 let state       = null
@@ -135,6 +136,39 @@ function loop(ts) {
       UI.showNotification(t('ui.rift.spawned'), 'unlock')
     }
     UI.renderRift(state)
+
+    // Viajero expeditions
+    const completedExps = ViajerosSystem.tickExpeditions(state, baseProd)
+    if (completedExps.length > 0) {
+      completedExps.forEach(({ viajeroid, loot }) => {
+        if (loot.energy && loot.energy.gt(0)) {
+          state.energy            = state.energy.add(loot.energy)
+          state.totalEnergyEarned = state.totalEnergyEarned.add(loot.energy)
+        }
+        if (loot.prestigeFrags > 0) {
+          state.prestige.fragments += loot.prestigeFrags
+        }
+        if (loot.crystals > 0) {
+          state.crystals = (state.crystals || 0) + loot.crystals
+        }
+        const defId = viajeroid
+        UI.showNotification(t('notif.expedition_complete', {
+          name: t('viajero.' + defId + '.name'),
+          energy: loot.energy ? UI.fmtPublic(loot.energy) : '0',
+        }), 'success')
+      })
+      UI.renderViajeros(state)
+      UI.renderCrystals(state)
+    }
+
+    // Viajero arrivals (idempotent check for story-gated Viajeros)
+    const newArrivals = ViajerosSystem.checkArrivals(state)
+    if (newArrivals.length > 0) {
+      newArrivals.forEach(id => {
+        UI.showNotification(t('notif.viajero_arrived', { name: t('viajero.' + id + '.name') }), 'unlock')
+      })
+      UI.renderViajeros(state)
+    }
 
     // Prestige live counter (updates every UI tick)
     UI.renderPrestige(state)
@@ -311,9 +345,46 @@ function prestige() {
     UI.renderMissions(state)
     UI.renderNextObjective(state)
     UI.renderLorePanel(state)
+    UI.renderViajeros(state)
     Analytics.track('prestige', { runCount: runNumber, fragments: earned })
     EventBus.emit('prestige', { runCount: runNumber })
   })
+}
+
+function sendExpedition(viajeroid) {
+  const ok = ViajerosSystem.sendExpedition(state, viajeroid)
+  if (ok) {
+    UI.showNotification(t('notif.expedition_sent', { name: t('viajero.' + viajeroid + '.name') }), 'info')
+    UI.renderViajeros(state)
+  }
+}
+
+function assignGuardian(viajeroid, portalId) {
+  const ok = ViajerosSystem.assignGuardian(state, viajeroid, portalId)
+  if (ok) {
+    UI.renderViajeros(state)
+    EventBus.emit('guardian_assigned', { viajeroid, portalId })
+  }
+}
+
+function gachaPull(n) {
+  const result = ViajerosSystem.pull(state, n)
+  if (!result.ok) {
+    if (result.reason === 'no_crystals') {
+      UI.showNotification(t('ui.viajero.gacha.no_crystals'), 'info')
+    }
+    return
+  }
+  result.results.forEach(r => {
+    UI.showNotification(t('notif.viajero_pulled', {
+      name:   t('viajero.' + r.id + '.name'),
+      rarity: t('viajero.rarity.' + r.rarity),
+    }), r.rarity === 'legendario' ? 'unlock' : 'success')
+  })
+  UI.renderViajeros(state)
+  UI.renderCrystals(state)
+  Analytics.track('gacha_pull', { n, results: result.results.map(r => r.rarity) })
+  EventBus.emit('gacha_pull', { n })
 }
 
 function buyPrestigeNode(nodeId) {
@@ -376,6 +447,9 @@ function init() {
     clickRift,
     prestige,
     buyPrestigeNode,
+    sendExpedition,
+    assignGuardian,
+    gachaPull,
     reset,
     manualSave,
     getState:        () => state,
@@ -391,6 +465,7 @@ function init() {
   UI.renderNextObjective(state)
   UI.renderLorePanel(state)
   UI.renderPrestige(state)
+  UI.renderViajeros(state)
 
   RiftSystem.scheduleFirst(state)
 

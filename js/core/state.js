@@ -4,7 +4,7 @@ export const SAVE_KEY         = 'nexus_save_v1'   // misma key para cargar saves
 export const SAVE_INTERVAL_MS = 10_000
 export const MIN_OFFLINE_SECS = 30
 export const UI_TICK_MS       = 100
-export const CURRENT_VERSION  = 9
+export const CURRENT_VERSION  = 10
 
 export function createInitialState() {
   return {
@@ -91,6 +91,20 @@ export function createInitialState() {
       runCount:      0,
       tree:          {},
       storyUnlocked: [],
+    },
+
+    // Premium currency
+    crystals: 0,
+
+    // Viajeros
+    viajeros: {
+      roster:        {},  // { viajeroid: { resonance, artifacts: { head, weapon, relic }, copies? } }
+      assignments:   {},  // { portalId: viajeroid }
+      expeditions:   [],  // [{ viajeroid, returnsAt, durationH, rarity }]
+      artifacts:     {},  // { instId: { defId, stars, copies } }
+      gacha:         { pityCount: 0, history: [] },
+      tutorialSeen:  false,
+      _nextArtifactId: 1,
     },
 
     // Meta
@@ -194,6 +208,29 @@ export function migrateState(state) {
       state.prestige = { fragments: 0, totalEarned: 0, runCount: 0, tree: {}, storyUnlocked: [] }
     }
     state.version = 9
+  }
+
+  if (v < 10) {
+    if (!state.hasOwnProperty('crystals')) {
+      state.crystals = 0
+    }
+    if (!state.viajeros) {
+      state.viajeros = {
+        roster: {}, assignments: {}, expeditions: [],
+        artifacts: {}, gacha: { pityCount: 0, history: [] },
+        tutorialSeen: false, _nextArtifactId: 1,
+      }
+    } else {
+      // Ensure all sub-fields exist for partial saves
+      state.viajeros.roster        = state.viajeros.roster        || {}
+      state.viajeros.assignments   = state.viajeros.assignments   || {}
+      state.viajeros.expeditions   = state.viajeros.expeditions   || []
+      state.viajeros.artifacts     = state.viajeros.artifacts     || {}
+      state.viajeros.gacha         = state.viajeros.gacha         || { pityCount: 0, history: [] }
+      state.viajeros.tutorialSeen  = state.viajeros.tutorialSeen  ?? false
+      state.viajeros._nextArtifactId = state.viajeros._nextArtifactId || 1
+    }
+    state.version = 10
   }
 
   return state

@@ -1102,6 +1102,211 @@ body {
 .pm-reset  { color: #ff8080; }
 .pm-persist { color: #80ff80; }
 
+/* ── CRYSTALS HUD ── */
+.crystals-value { color: #a78bfa; font-weight: 700; }
+
+/* ── VIAJEROS PANEL ── */
+.viajero-tab-bar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+.viajero-tab {
+  flex: 1;
+  padding: 5px 8px;
+  background: var(--bg-mid);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: .8rem;
+  transition: background .15s, color .15s;
+}
+.viajero-tab.active, .viajero-tab:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.viajero-section-header {
+  font-size: .75rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin: 10px 0 5px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Viajero card */
+.viajero-card {
+  background: var(--bg-mid);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 6px;
+  position: relative;
+}
+.viajero-card.rarity-raro       { border-color: #60a5fa; }
+.viajero-card.rarity-epico      { border-color: #c084fc; }
+.viajero-card.rarity-legendario { border-color: #fbbf24; box-shadow: 0 0 6px rgba(251,191,36,.3); }
+.vj-header   { display: flex; gap: 8px; align-items: flex-start; }
+.vj-icon     { font-size: 1.6rem; line-height: 1; }
+.vj-info     { flex: 1; }
+.vj-name     { font-size: .9rem; font-weight: 700; color: var(--text-main); }
+.vj-desc     { font-size: .72rem; color: var(--text-dim); margin-top: 2px; }
+.vj-rarity   { font-size: .65rem; text-transform: uppercase; letter-spacing: .06em; margin-top: 1px; }
+.rarity-label-common    { color: #9ca3af; }
+.rarity-label-raro      { color: #60a5fa; }
+.rarity-label-epico     { color: #c084fc; }
+.rarity-label-legendario{ color: #fbbf24; }
+.vj-artifacts { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+.vj-artifact-slot {
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 5px;
+  font-size: .68rem;
+  color: var(--text-dim);
+}
+.art-stars { color: #fbbf24; }
+.btn-vj-action {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 3px 10px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: .75rem;
+  cursor: pointer;
+}
+.btn-vj-action:hover { filter: brightness(1.15); }
+
+/* Guardian slot */
+.guardian-slot {
+  background: var(--bg-mid);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 7px 10px;
+  margin-bottom: 6px;
+}
+.guardian-portal-label { font-size: .8rem; font-weight: 700; margin-bottom: 4px; }
+.guardian-empty        { font-size: .75rem; color: var(--text-dim); font-style: italic; }
+.viajero-mini {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .8rem;
+}
+.btn-vj-unassign {
+  margin-left: auto;
+  padding: 2px 7px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 4px;
+  font-size: .7rem;
+  cursor: pointer;
+}
+.btn-vj-unassign:hover { border-color: #ff8080; color: #ff8080; }
+
+/* Expedition card */
+.expedition-card {
+  background: var(--bg-mid);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.expedition-card.active { border-color: var(--accent); }
+.exp-info { flex: 1; }
+.exp-name  { font-size: .85rem; font-weight: 700; }
+.exp-timer { font-size: .75rem; color: var(--text-dim); }
+.expedition-slots-info {
+  font-size: .75rem;
+  color: var(--text-dim);
+  margin: 5px 0 8px;
+}
+
+/* Gacha */
+.gacha-crystals   { font-size: 1.1rem; font-weight: 700; color: #a78bfa; margin-bottom: 4px; }
+.gacha-pity       { font-size: .75rem; color: var(--text-dim); margin-bottom: 10px; }
+.gacha-buttons    { display: flex; gap: 8px; margin-bottom: 8px; }
+.btn-gacha-pull {
+  flex: 1;
+  padding: 8px;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: .85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter .15s;
+}
+.btn-gacha-pull:disabled { opacity: .4; cursor: not-allowed; filter: none; }
+.btn-gacha-pull:not(:disabled):hover { filter: brightness(1.15); }
+.btn-pull-10 { background: linear-gradient(135deg, #5b21b6, #7c3aed); }
+.gacha-hint   { font-size: .75rem; color: var(--text-dim); font-style: italic; margin-bottom: 6px; }
+.gacha-history-title { font-size: .75rem; color: var(--text-dim); margin-bottom: 4px; }
+.gacha-history { display: flex; flex-direction: column; gap: 2px; }
+.gacha-history-item {
+  font-size: .75rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--bg-deep);
+}
+.gacha-history-item.rarity-raro       { color: #60a5fa; }
+.gacha-history-item.rarity-epico      { color: #c084fc; }
+.gacha-history-item.rarity-legendario { color: #fbbf24; }
+
+/* Assign modal select */
+.assign-select {
+  width: 100%;
+  margin-top: 8px;
+  padding: 6px;
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  border-radius: 4px;
+  font-size: .85rem;
+}
+
+/* Viajero tutorial modal */
+#viajero-tutorial-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+#viajero-tutorial-box {
+  background: var(--bg-mid);
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: 24px;
+  max-width: 380px;
+  width: 90%;
+  text-align: center;
+}
+#viajero-tutorial-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--accent);
+}
+#viajero-tutorial-body {
+  font-size: .85rem;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar               { width: 5px; }
 ::-webkit-scrollbar-track         { background: var(--bg-deep); }
