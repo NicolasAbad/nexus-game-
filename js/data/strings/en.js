@@ -451,4 +451,282 @@ export const STRINGS_EN = {
   'notif.expedition_sent':    '🧭 {name} departed on expedition',
   'notif.expedition_complete':'⚡ {name} returned — +{energy} Energy',
   'notif.viajero_pulled':     '✦ {name} recruited! ({rarity})',
+
+  // ── Stage 9 — Viajero tabs ─────────────────────────────────────────────────
+  'ui.viajero.tab.bonds':           'Bonds',
+  'ui.viajero.tab.council':         'Council',
+  'ui.viajero.tab.quests':          'Quests',
+  'ui.viajero.resonance':           'Resonance {n}/9',
+  'ui.viajero.copies':              '×{n} copies',
+
+  // Fusion
+  'ui.viajero.fusion.title':        'Fusion (3 copies → 1 upgrade)',
+  'ui.viajero.fusion.btn':          'Fuse',
+  'ui.viajero.fusion.fail_not_owned':    'Viajero not owned',
+  'ui.viajero.fusion.fail_need_3_copies':'Need 3 copies to fuse',
+  'ui.viajero.fusion.fail_no_fusion_path':'No fusion path available',
+  'ui.viajero.fusion.fail_unknown':  'Fusion failed',
+
+  // Bond Web
+  'ui.bond.res_label':   'Resonance: {n}/{req}',
+  'ui.bond.need_both':   'Own both Viajeros to unlock',
+  'ui.bond.active':      '✓ ACTIVE',
+  'ui.bond.locked':      '🔒 Locked',
+
+  // Council
+  'ui.council.title':    'Council of the Nexo ({used}/{max})',
+  'ui.council.empty':    'Empty slot — assign a Legendary',
+  'ui.council.assign':   'Assign',
+  'ui.council.remove':   'Remove',
+  'ui.council.available':'Available Legendaries',
+
+  // Quests
+  'ui.quests.unclaimed':               '{n} quest reward(s) ready to claim!',
+  'ui.quests.claim':                   'Claim',
+  'ui.quests.reward.crystals':         '+{n} 💎',
+  'ui.quests.reward.prestige_frags':   '+{n} Fragments',
+  'ui.quests.reward.resonance_boost':  '+{n} Resonance',
+  'ui.quests.reward_claimed.crystals':       '+{n} 💎 claimed!',
+  'ui.quests.reward_claimed.prestige_frags': '+{n} Fragments claimed!',
+  'ui.quests.reward_claimed.resonance_boost':'+{n} Resonance claimed!',
+
+  // Bond effects (shown in bond card)
+  'bond.celestial_flame.effect':  '×2 Igneous + Celestial Portal production',
+  'bond.eternal_loop.effect':     '×3 offline income cap',
+  'bond.blood_of_abyss.effect':   '×3 expedition energy loot',
+  'bond.void_siblings.effect':    '+25% all portal production',
+  'bond.lost_origin.effect':      '×1.5 global production multiplier',
+  'bond.chaos_and_order.effect':  '×1.3 global production multiplier',
+
+  // ── Lore fragments (resonance 3/6/9) ──────────────────────────────────────
+  'lore.kael.r3':         'Kael remembers the first flame — not destruction, but creation.',
+  'lore.kael.r6':         'He was there when the Igneous Dimension ignited. He will be there when it cools.',
+  'lore.kael.r9':         '"The Nexo is not a place. It is the space between moments — and I will guard it."',
+
+  'lore.embera.r3':       'Embera carries lava-maps of every volcanic dimension she has crossed.',
+  'lore.embera.r6':       'She says the heat teaches patience. Every expedition reveals a new layer of truth.',
+  'lore.embera.r9':       '"The fire does not destroy. It clears the way for what must come next."',
+
+  'lore.pyron.r3':        'Pyron was born from a supernova. His memory spans a thousand cycles.',
+  'lore.pyron.r6':        'He watched the Igneous Dimension cool and reignite three times.',
+  'lore.pyron.r9':        '"Power without direction is just noise. I am the direction."',
+
+  'lore.lyra.r3':         'Lyra navigates by currents no instrument can measure.',
+  'lore.lyra.r6':         'She has crossed the Abyssal Dimension alone, in the dark, and returned singing.',
+  'lore.lyra.r9':         '"The depths are not empty. They are full of things that chose to be quiet."',
+
+  'lore.marea.r3':        'Marea can feel tidal patterns from dimensions away.',
+  'lore.marea.r6':        'She built the first Abyssal waystation out of condensed current and will.',
+  'lore.marea.r9':        '"The ocean forgets nothing. And neither do I."',
+
+  'lore.abyssus.r3':      'Abyssus has spent more time below the surface than above it.',
+  'lore.abyssus.r6':      'He found something at the deepest point of the Abyssal Dimension. He does not speak of it.',
+  'lore.abyssus.r9':      '"What sleeps in the deep is not dead. It is waiting for the right question."',
+
+  'lore.vex.r3':          'Vex is never where you expect — she arrives before you call.',
+  'lore.vex.r6':          'She runs on lightning and pattern recognition. Mostly lightning.',
+  'lore.vex.r9':          '"Speed is not about going fast. It is about knowing when to stop."',
+
+  'lore.chronus.r3':      'Chronus counts seconds the way others count coins.',
+  'lore.chronus.r6':      'He has lived the same hour a thousand times. Each time he finds a new detail.',
+  'lore.chronus.r9':      '"Every moment contains every other moment. I just know where to look."',
+
+  'lore.tempus.r3':       'Tempus ages backwards on Tuesdays, or so she claims.',
+  'lore.tempus.r6':       'She is simultaneously the youngest and oldest entity in any room.',
+  'lore.tempus.r9':       '"Time is not a river. It is a knot. And I carry the scissors."',
+
+  'lore.null.r3':         'Null speaks in the language of absence.',
+  'lore.null.r6':         'He crossed the Void Dimension before portals existed. He does not say how.',
+  'lore.null.r9':         '"Nothing is not the same as empty. The Void is full of nothing."',
+
+  'lore.shade.r3':        'Shade moves through darkness the way others move through air.',
+  'lore.shade.r6':        'She gathered secrets for decades before deciding which ones to share.',
+  'lore.shade.r9':        '"The night sees everything. I am the night\'s interpreter."',
+
+  'lore.presence.r3':     'Presence exists in all dimensions simultaneously. It is polite about it.',
+  'lore.presence.r6':     'It watched the Nexo form from the outside. It saw what others missed.',
+  'lore.presence.r9':     '"You are not observing me. We are observing each other."',
+
+  'lore.aether.r3':       'Aether was made from starlight and curiosity.',
+  'lore.aether.r6':       'She counts constellations that do not exist in any known dimension.',
+  'lore.aether.r9':       '"The stars are not guides. They are invitations."',
+
+  'lore.solara.r3':       'Solara was the first light in the Celestial Dimension.',
+  'lore.solara.r6':       'She outlasted three suns. She plans to outlast three more.',
+  'lore.solara.r9':       '"Warmth and power are not separate things. They are the same thing expressed differently."',
+
+  'lore.stellan.r3':      'Stellan is the patron of explorers who navigate by memory.',
+  'lore.stellan.r6':      'He charted every star cluster in the Celestial Dimension before breakfast, once.',
+  'lore.stellan.r9':      '"A good map and an open sky. That is all you ever need."',
+
+  'lore.rift.r3':         'Rift was born in a dimensional crack.',
+  'lore.rift.r6':         'He does not fear the Chaos Dimension. He was raised by it.',
+  'lore.rift.r9':         '"Chaos is not random. It is just honest about being unpredictable."',
+
+  'lore.khaos.r3':        'Khaos embodies the creative force of entropy.',
+  'lore.khaos.r6':        'She destroys things to see what rebuilds itself. Most things do.',
+  'lore.khaos.r9':        '"Order is a choice. Chaos is what happens when you stop choosing."',
+
+  'lore.fracture.r3':     'Fracture was created in a dimensional collapse.',
+  'lore.fracture.r6':     'He survived by becoming part of the collapse himself.',
+  'lore.fracture.r9':     '"The crack in the wall is not a weakness. It is where the light gets in."',
+
+  'lore.antiga.r3':       'Antiga is older than the portals. Older than the Nexo.',
+  'lore.antiga.r6':       'She watched all dimensions form from a place that has no name.',
+  'lore.antiga.r9':       '"I am not ancient because I have been here long. I am ancient because I remember the beginning."',
+
+  'lore.nexar.r3':        'Nexar studies the shape of the Nexo the way scientists study black holes.',
+  'lore.nexar.r6':        'It has proposed seventeen models of Nexo formation. Twelve are correct simultaneously.',
+  'lore.nexar.r9':        '"Understanding and knowing are not the same. I understand everything. I know enough."',
+
+  'lore.origin.r3':       'Origin was there when the first dimension separated from the void.',
+  'lore.origin.r6':       'It seeded the Primordial Dimension with the first living patterns.',
+  'lore.origin.r9':       '"I did not create life. I showed it where to go."',
+
+  'lore.singularis.r3':   'Singularis is all dimensions at their convergence point.',
+  'lore.singularis.r6':   'It has no singular form because it contains all forms.',
+  'lore.singularis.r9':   '"You want to understand the Nexo? Stand at the center. Then let go."',
+
+  'lore.cartographer.r3': 'The Cartographer has mapped dimensions that no longer exist.',
+  'lore.cartographer.r6': 'Their maps show destinations before the traveler knows they want to go.',
+  'lore.cartographer.r9': '"The map is not the territory. But a good map knows where the territory wants to go."',
+
+  'lore.weaver.r3':       'Weaver binds things that were never meant to be separate.',
+  'lore.weaver.r6':       'They connected Kael and Solara before either of them knew it mattered.',
+  'lore.weaver.r9':       '"Everything is already connected. I just make the connections visible."',
+
+  // ── Reactive dialogues ─────────────────────────────────────────────────────
+  'dialogue.kael.prestige':          '🔥 "The fire resets. The Nexo endures. Begin again."',
+  'dialogue.lyra.prestige':          '🌊 "Another cycle complete. The depths have more to teach us."',
+  'dialogue.vex.prestige':           '⚡ "New run, same me — but faster this time."',
+  'dialogue.presence.prestige':      '👁️ "I observed your choice. It was the correct one."',
+  'dialogue.cartographer.prestige':  '🗺️ "I have updated the map. The next path is charted."',
+  'dialogue.weaver.prestige':        '🕸️ "The threads reset, but the pattern remains."',
+  'dialogue.singularis.prestige':    '⬛ "At the convergence, all cycles are one cycle."',
+  'dialogue.origin.prestige':        '🌱 "Every ending is a beginning in disguise."',
+
+  'dialogue.kael.long_return':       '🔥 "You were gone long. The portals held. Welcome back."',
+  'dialogue.lyra.long_return':       '🌊 "The tides shifted while you were away. Much was earned."',
+  'dialogue.chronus.long_return':    '⏰ "Time is the most generous currency. You were wise to save it."',
+  'dialogue.tempus.long_return':     '🕰️ "Interesting. You arrived exactly when I expected."',
+  'dialogue.shade.long_return':      '🌑 "The dark never stopped working for you."',
+  'dialogue.aether.long_return':     '✨ "The stars moved while you were away. Did you see them?"',
+
+  'dialogue.kael.portal_milestone':  '🔥 "The portals grow stronger. The Nexo approves."',
+  'dialogue.embera.portal_milestone':'🌋 "More portals mean more expeditions. Good."',
+  'dialogue.pyron.portal_milestone': '💥 "Impressive scale. The Igneous Dimension trembles."',
+  'dialogue.antiga.portal_milestone':'🌍 "I have seen expansions like this before. They led somewhere magnificent."',
+  'dialogue.nexar.portal_milestone': '🔮 "The production curve is ahead of projection. Optimal."',
+
+  'dialogue.lyra.expedition_return':  '🌊 "Another deep expedition complete. The abyss gives up its secrets slowly."',
+  'dialogue.abyssus.expedition_return':'🦑 "The depths have been generous today."',
+  'dialogue.shade.expedition_return': '🌑 "Darkness explored. Shadows paid."',
+  'dialogue.aether.expedition_return':'✨ "The stars were kind. Good haul."',
+  'dialogue.rift.expedition_return':  '🌀 "Chaos was navigated. Rewards extracted. Classic."',
+
+  'dialogue.vex.ability_use':      '⚡ "Calculated. Now moving at optimal speed."',
+  'dialogue.tempus.ability_use':   '🕰️ "Time flows differently when you know how to ask."',
+  'dialogue.fracture.ability_use': '💢 "Chaos, focused. That is the only way it works."',
+
+  // ── Quest keys (title + desc) ────────────────────────────────────────────
+  'quest.kael.1.title': 'Kael\'s Domain',        'quest.kael.1.desc': 'Own 10 Igneous Portals',
+  'quest.kael.2.title': 'Kael\'s Expansion',     'quest.kael.2.desc': 'Own 25 Igneous Portals',
+  'quest.kael.3.title': 'Kael\'s Trust',         'quest.kael.3.desc': 'Reach Resonance 5 with Kael',
+
+  'quest.embera.1.title': 'First Descent',       'quest.embera.1.desc': 'Complete 1 expedition with Embera',
+  'quest.embera.2.title': 'Deep Surveys',        'quest.embera.2.desc': 'Complete 5 expeditions with Embera',
+  'quest.embera.3.title': 'The Lava Chronicle',  'quest.embera.3.desc': 'Complete 15 expeditions with Embera',
+
+  'quest.pyron.1.title': 'Pyron\'s Scale',       'quest.pyron.1.desc': 'Own 50 total portals',
+  'quest.pyron.2.title': 'Pyron\'s Legacy',      'quest.pyron.2.desc': 'Own 100 total portals',
+  'quest.pyron.3.title': 'Pyron\'s Cycle',       'quest.pyron.3.desc': 'Perform 2 Prestiges',
+
+  'quest.lyra.1.title': 'First Dive',            'quest.lyra.1.desc': 'Complete 1 expedition with Lyra',
+  'quest.lyra.2.title': 'Depth Protocol',        'quest.lyra.2.desc': 'Complete 5 expeditions with Lyra',
+  'quest.lyra.3.title': 'Blood of the Abyss',    'quest.lyra.3.desc': 'Activate the Blood of the Abyss bond',
+
+  'quest.marea.1.title': 'Tide Caller',          'quest.marea.1.desc': 'Own 5 Abyssal Portals',
+  'quest.marea.2.title': 'Rising Tide',          'quest.marea.2.desc': 'Own 20 Abyssal Portals',
+  'quest.marea.3.title': 'Marea\'s Mark',        'quest.marea.3.desc': 'Reach Resonance 5 with Marea',
+
+  'quest.abyssus.1.title': 'Into the Deep',      'quest.abyssus.1.desc': 'Complete 3 expeditions with Abyssus',
+  'quest.abyssus.2.title': 'Abyssal Run',        'quest.abyssus.2.desc': 'Perform 1 Prestige',
+  'quest.abyssus.3.title': 'Deep Council',       'quest.abyssus.3.desc': 'Reach Resonance 5 with Abyssus',
+
+  'quest.vex.1.title': 'Static Charge',          'quest.vex.1.desc': 'Earn 1 million total energy',
+  'quest.vex.2.title': 'Lightning Run',          'quest.vex.2.desc': 'Earn 1 billion total energy',
+  'quest.vex.3.title': 'Vex\'s Threshold',       'quest.vex.3.desc': 'Reach Resonance 5 with Vex',
+
+  'quest.chronus.1.title': 'Time Keeper',        'quest.chronus.1.desc': 'Own 5 Temporal Portals',
+  'quest.chronus.2.title': 'Clock Master',       'quest.chronus.2.desc': 'Own 20 Temporal Portals',
+  'quest.chronus.3.title': 'The Eternal Loop',   'quest.chronus.3.desc': 'Activate the Eternal Loop bond',
+
+  'quest.tempus.1.title': 'Temporal Echo',       'quest.tempus.1.desc': 'Reach Resonance 3 with Tempus',
+  'quest.tempus.2.title': 'Time Traveler',       'quest.tempus.2.desc': 'Perform 1 Prestige',
+  'quest.tempus.3.title': 'Tempus Infinite',     'quest.tempus.3.desc': 'Reach Resonance 7 with Tempus',
+
+  'quest.null.1.title': 'Void Walker',           'quest.null.1.desc': 'Own 5 Void Portals',
+  'quest.null.2.title': 'Into the Nothing',      'quest.null.2.desc': 'Own 15 Void Portals',
+  'quest.null.3.title': 'Null Point',            'quest.null.3.desc': 'Reach Resonance 5 with Null',
+
+  'quest.shade.1.title': 'Shadow Trail',         'quest.shade.1.desc': 'Complete 3 expeditions with Shade',
+  'quest.shade.2.title': 'Dark Courier',         'quest.shade.2.desc': 'Complete 10 expeditions with Shade',
+  'quest.shade.3.title': 'Void Siblings',        'quest.shade.3.desc': 'Activate the Void Siblings bond',
+
+  'quest.presence.1.title': 'The Observer',      'quest.presence.1.desc': 'Own 5 Viajeros',
+  'quest.presence.2.title': 'The Witness',       'quest.presence.2.desc': 'Own 10 Viajeros',
+  'quest.presence.3.title': 'Presence Absolute', 'quest.presence.3.desc': 'Reach Resonance 6 with Presence',
+
+  'quest.aether.1.title': 'Star Crosser',        'quest.aether.1.desc': 'Complete 2 expeditions with Aether',
+  'quest.aether.2.title': 'Stellar Paths',       'quest.aether.2.desc': 'Complete 8 expeditions with Aether',
+  'quest.aether.3.title': 'Aether\'s Gift',      'quest.aether.3.desc': 'Reach Resonance 5 with Aether',
+
+  'quest.solara.1.title': 'Solar Bloom',         'quest.solara.1.desc': 'Own 5 Celestial Portals',
+  'quest.solara.2.title': 'Solar Expansion',     'quest.solara.2.desc': 'Own 20 Celestial Portals',
+  'quest.solara.3.title': 'Celestial Flame',     'quest.solara.3.desc': 'Activate the Celestial Flame bond',
+
+  'quest.stellan.1.title': 'Charting Stars',     'quest.stellan.1.desc': 'Own 75 total portals',
+  'quest.stellan.2.title': 'Stellar Legacy',     'quest.stellan.2.desc': 'Own 150 total portals',
+  'quest.stellan.3.title': 'Stellan\'s Chart',   'quest.stellan.3.desc': 'Reach Resonance 5 with Stellan',
+
+  'quest.rift.1.title': 'Crack the Surface',     'quest.rift.1.desc': 'Complete 1 expedition with Rift',
+  'quest.rift.2.title': 'Chaos Diver',           'quest.rift.2.desc': 'Complete 5 expeditions with Rift',
+  'quest.rift.3.title': 'Rift\'s Edge',          'quest.rift.3.desc': 'Reach Resonance 5 with Rift',
+
+  'quest.khaos.1.title': 'Chaos Theory',         'quest.khaos.1.desc': 'Own 5 Chaos Portals',
+  'quest.khaos.2.title': 'Entropy Engine',       'quest.khaos.2.desc': 'Own 20 Chaos Portals',
+  'quest.khaos.3.title': 'Khaos Point',          'quest.khaos.3.desc': 'Reach Resonance 5 with Khaos',
+
+  'quest.fracture.1.title': 'First Fracture',    'quest.fracture.1.desc': 'Perform 1 Prestige',
+  'quest.fracture.2.title': 'Deep Fracture',     'quest.fracture.2.desc': 'Perform 3 Prestiges',
+  'quest.fracture.3.title': 'Chaos and Order',   'quest.fracture.3.desc': 'Activate the Chaos and Order bond',
+
+  'quest.antiga.1.title': 'Ancient Grounds',     'quest.antiga.1.desc': 'Own 5 Primordial Portals',
+  'quest.antiga.2.title': 'Primordial Scale',    'quest.antiga.2.desc': 'Own 200 total portals',
+  'quest.antiga.3.title': 'Antiga\'s Age',       'quest.antiga.3.desc': 'Perform 2 Prestiges',
+
+  'quest.nexar.1.title': 'First Analysis',       'quest.nexar.1.desc': 'Perform 1 Prestige',
+  'quest.nexar.2.title': 'Deep Analysis',        'quest.nexar.2.desc': 'Perform 3 Prestiges',
+  'quest.nexar.3.title': 'Nexar\'s Model',       'quest.nexar.3.desc': 'Reach Resonance 5 with Nexar',
+
+  'quest.origin.1.title': 'Seed of Life',        'quest.origin.1.desc': 'Own 8 Viajeros',
+  'quest.origin.2.title': 'Primordial Council',  'quest.origin.2.desc': 'Perform 3 Prestiges',
+  'quest.origin.3.title': 'Origin\'s Purpose',   'quest.origin.3.desc': 'Activate the Chaos and Order bond',
+
+  'quest.singularis.1.title': 'Convergence',     'quest.singularis.1.desc': 'Own 300 total portals',
+  'quest.singularis.2.title': 'Singularity',     'quest.singularis.2.desc': 'Perform 5 Prestiges',
+  'quest.singularis.3.title': 'The Final Point', 'quest.singularis.3.desc': 'Reach Resonance 9 with Singularis',
+
+  'quest.cartographer.1.title': 'New Maps',      'quest.cartographer.1.desc': 'Own 10 Viajeros',
+  'quest.cartographer.2.title': 'The Grand Map', 'quest.cartographer.2.desc': 'Own 15 Viajeros',
+  'quest.cartographer.3.title': 'Lost Origin',   'quest.cartographer.3.desc': 'Activate the Lost Origin bond',
+
+  'quest.weaver.1.title': 'Threading Bonds',     'quest.weaver.1.desc': 'Own 12 Viajeros',
+  'quest.weaver.2.title': 'The Grand Web',       'quest.weaver.2.desc': 'Perform 4 Prestiges',
+  'quest.weaver.3.title': 'Weaver\'s Web',       'quest.weaver.3.desc': 'Activate the Lost Origin bond',
+
+  // ── Stage 9 notifications ──────────────────────────────────────────────────
+  'notif.viajero_fused':    '🔮 {source} fused into {target}!',
+  'notif.council_assigned': '✦ {name} has joined the Council of the Nexo!',
+  'notif.quest_completed':  '📜 Quest ready to claim: {quest}',
 }

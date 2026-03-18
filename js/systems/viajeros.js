@@ -28,6 +28,9 @@ import {
   GACHA_COST_SINGLE, GACHA_COST_TEN,
   EXPEDITION_DURATION_H, EXPEDITION_LOOT,
 } from '../data/viajeros.js'
+import { FUSION_TABLE }  from '../data/bonds.js'
+import { RESONANCE_LORE } from '../data/viajero_lore.js'
+import { BondSystem }    from './bonds.js'
 
 // ── Helpers internos ──────────────────────────────────────────────────────────
 
@@ -109,7 +112,11 @@ export const ViajerosSystem = {
 
   _grantViajero(state, id) {
     if (!state.viajeros.roster[id]) {
-      state.viajeros.roster[id] = { resonance: 0, artifacts: { head: null, weapon: null, relic: null } }
+      state.viajeros.roster[id] = {
+        resonance: 0,
+        expeditions: 0,
+        artifacts: { head: null, weapon: null, relic: null },
+      }
     }
   },
 
@@ -130,9 +137,11 @@ export const ViajerosSystem = {
     return null
   },
 
-  // Max expedition slots: 1 base, +1 if A2 prestige node owned
+  // Max expedition slots: 1 base, +1 if A2 prestige node owned OR Origin in Council
   getExpeditionSlotsMax(state) {
-    return (state.prestige?.tree?.a2) ? 2 : 1
+    const fromPrestige = state.prestige?.tree?.a2 ? 1 : 0
+    const fromCouncil  = this.getExtraExpeditionSlot(state) ? 1 : 0
+    return 1 + fromPrestige + fromCouncil
   },
 
   canSendExpedition(state) {
@@ -172,7 +181,14 @@ export const ViajerosSystem = {
     for (const exp of (state.viajeros?.expeditions || [])) {
       if (now >= exp.returnsAt) {
         const loot = this._computeLoot(state, exp, currentProd)
-        completed.push({ viajeroid: exp.viajeroid, loot })
+        // Increment expedition counter + resonance for that Viajero
+        const entry = _roster(state)[exp.viajeroid]
+        let loreKeys = []
+        if (entry) {
+          entry.expeditions = (entry.expeditions || 0) + 1
+          loreKeys = this.incrementResonanceForExpedition(state, exp.viajeroid)
+        }
+        completed.push({ viajeroid: exp.viajeroid, loot, loreKeys })
       } else {
         remaining.push(exp)
       }
@@ -191,7 +207,9 @@ export const ViajerosSystem = {
     if (def?.explorerEffect?.type === 'expedition_yield') {
       yieldMult *= def.explorerEffect.mult
     }
-    // Embera / Aether / Rift / etc bonus applies globally if on expedition
+    // Bond expedition yield bonus
+    yieldMult *= BondSystem.getExpeditionYieldMult(state)
+
     const energy = currentProd
       ? currentProd.mul(config.energyMinutes * 60).mul(yieldMult)
       : new Decimal(0)
@@ -384,13 +402,17 @@ export const ViajerosSystem = {
     return Math.min(0.75, total)
   },
 
-  // Combined global_mult from passiveEffects of all owned Viajeros
+  // Combined global_mult from passiveEffects of all owned Viajeros.
+  // Legendary passiveEffects only apply when the Viajero is in the Council.
   getPassiveGlobalMult(state) {
+    const council = state.viajeros?.council || []
     let mult = new Decimal(1)
     for (const [id, data] of Object.entries(_roster(state))) {
       if (!data) continue
       const def = _def(id)
-      if (def?.passiveEffect?.type === 'global_mult') {
+      if (!def?.passiveEffect) continue
+      if (def.rarity === 'legendario' && !council.includes(id)) continue
+      if (def.passiveEffect.type === 'global_mult') {
         mult = mult.mul(def.passiveEffect.mult)
       }
     }
@@ -460,6 +482,127 @@ export const ViajerosSystem = {
     const artDef = _artDef(artEntry.defId)
     if (artDef?.stat.type !== 'prod_pct') return 0
     return _statValue(artDef, artEntry.stars)
+  },
+
+  // ── Resonance ───────────────────────────────────────────────────────────────
+
+  /**
+   * +1 resonance for a Viajero after completing an expedition.
+   * Returns array of lore keys newly unlocked (resonance hit 3, 6, or 9).
+   */
+  incrementResonanceForExpedition(state, viajeroid) {
+    return this._incrementResonance(state, viajeroid)
+  },
+
+  /**
+   * +1 resonance for ALL owned Viajeros when prestige fires.
+   * Returns array of { viajeroid, loreKey } for newly unlocked lore fragments.
+   */
+  incrementResonanceForPrestige(state) {
+    const unlocked = []
+    for (const id of Object.keys(_roster(state))) {
+      const newLore = this._incrementResonance(state, id)
+      for (const key of newLore) unlocked.push({ viajeroid: id, loreKey: key })
+    }
+    return unlocked
+  },
+
+  /**
+   * +1 resonance for the Guardian assigned to portalId when count hits a milestone.
+   * Portal milestones: 10, 25, 50, 100. Returns lore keys unlocked or [].
+   */
+  incrementResonanceForPortalMilestone(state, portalId, count) {
+    const milestones = [10, 25, 50, 100]
+    if (!milestones.includes(count)) return []
+    const viajeroid = state.viajeros?.assignments?.[portalId]
+    if (!viajeroid) return []
+    return this._incrementResonance(state, viajeroid)
+  },
+
+  // Internal: increment resonance by 1, return lore keys for milestones hit
+  _incrementResonance(state, viajeroid) {
+    const entry = _roster(state)[viajeroid]
+    if (!entry) return []
+
+    const prev = entry.resonance || 0
+    const next  = Math.min(9, prev + 1)
+    entry.resonance = next
+
+    if (next === prev) return []   // already at max
+
+    const loreMilestones = [3, 6, 9]
+    const unlocked = []
+    for (const lvl of loreMilestones) {
+      if (prev < lvl && next >= lvl) {
+        const key = RESONANCE_LORE[viajeroid]?.[lvl]
+        if (key) unlocked.push(key)
+      }
+    }
+    return unlocked
+  },
+
+  // ── Fusion ──────────────────────────────────────────────────────────────────
+
+  /**
+   * Fuse 3 copies of sourceId into 1 targetId.
+   * sourceId must have copies >= 2 (base + 2 extras = 3 total).
+   * Consumes the 2 extra copies and creates the target.
+   * Returns { ok: true, targetId } or { ok: false, reason }.
+   */
+  fuseViajero(state, sourceId) {
+    const entry = _roster(state)[sourceId]
+    if (!entry) return { ok: false, reason: 'not_owned' }
+    if ((entry.copies || 0) < 2) return { ok: false, reason: 'need_3_copies' }
+
+    const fusePath = FUSION_TABLE.find(f => f.source === sourceId)
+    if (!fusePath) return { ok: false, reason: 'no_fusion_path' }
+
+    // Consume 2 copies
+    entry.copies = entry.copies - 2
+
+    // Grant target (creates if not owned, adds copy if already owned)
+    const targetId = fusePath.target
+    if (_roster(state)[targetId]) {
+      _roster(state)[targetId].copies = (_roster(state)[targetId].copies || 0) + 1
+    } else {
+      this._grantViajero(state, targetId)
+    }
+
+    return { ok: true, targetId }
+  },
+
+  // ── Council of the Nexo ─────────────────────────────────────────────────────
+
+  /** Assign a Legendary Viajero to the Council (max 3 slots). */
+  assignCouncil(state, viajeroid) {
+    const def = _def(viajeroid)
+    if (!def || def.rarity !== 'legendario') return false
+    if (!_roster(state)[viajeroid]) return false
+
+    const council = state.viajeros.council || []
+    if (council.includes(viajeroid)) return true  // already in council
+    if (council.length >= 3) return false          // no free slot
+
+    state.viajeros.council = [...council, viajeroid]
+    return true
+  },
+
+  /** Remove a Viajero from the Council. */
+  removeFromCouncil(state, viajeroid) {
+    state.viajeros.council = (state.viajeros.council || []).filter(id => id !== viajeroid)
+    return true
+  },
+
+  // ── Prestige frag + offline cap (council-aware) ────────────────────────────
+
+  // Also gate extra_expedition_slot legendary effect to Council
+  getExtraExpeditionSlot(state) {
+    const council = state.viajeros?.council || []
+    for (const id of council) {
+      const def = _def(id)
+      if (def?.passiveEffect?.type === 'extra_expedition_slot') return true
+    }
+    return false
   },
 
   // Returns expedition time remaining in seconds for a Viajero

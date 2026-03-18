@@ -4,6 +4,7 @@ import { PORTAL_DATA }  from '../data/portals.js'
 import { UPGRADE_DATA } from '../data/upgrades.js'
 import { VIAJERO_DATA } from '../data/viajeros.js'
 import { Synergies }    from '../systems/synergies.js'
+import { BondSystem }   from '../systems/bonds.js'
 
 // ── Artifact stat lookup (inlined to avoid circular dep) ──────────────────────
 // Mirrors ARTIFACT_DATA stat fields from data/viajeros.js. Keep in sync.
@@ -102,11 +103,15 @@ export const Production = {
       if (def?.guardianEffect?.type === 'global_mult') mult *= def.guardianEffect.mult
     }
 
-    // passiveEffect global_mult from all owned Viajeros
+    // passiveEffect global_mult from owned Viajeros
+    // Legendary passiveEffects only apply when the Viajero is in the Council
+    const council = state.viajeros?.council || []
     for (const [vId, data] of Object.entries(_roster(state))) {
       if (!data) continue
       const def = VIAJERO_DATA.find(v => v.id === vId)
-      if (def?.passiveEffect?.type === 'global_mult') mult *= def.passiveEffect.mult
+      if (!def?.passiveEffect) continue
+      if (def.rarity === 'legendario' && !council.includes(vId)) continue
+      if (def.passiveEffect.type === 'global_mult') mult *= def.passiveEffect.mult
     }
 
     return mult
@@ -121,6 +126,8 @@ export const Production = {
       .mul(count)
       .mul(this.getMultiplier(state, portalId))
       .mul(_guardianPortalMult(state, portalId))
+      .mul(BondSystem.getPortalMult(state, portalId))
+      .mul(BondSystem.getAllPortalMult(state))
   },
 
   // Producción/s total — mejoras globales + sinergias + guardianes
@@ -133,6 +140,7 @@ export const Production = {
       .mul(this.getGlobalMultiplier(state))
       .mul(Synergies.getMultiplier(state))
       .mul(this.getGuardianGlobalMult(state))
+      .mul(BondSystem.getGlobalMult(state))
   },
 
   // Poder de click — incluye weapon artifacts + bonusEffect click_mult

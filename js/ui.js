@@ -17,6 +17,9 @@ import { PrestigeSystem }  from './systems/prestige.js'
 import { PRESTIGE_NODES }  from './data/prestige.js'
 import { ViajerosSystem }  from './systems/viajeros.js'
 import { VIAJERO_DATA, ARTIFACT_DATA, GACHA_COST_SINGLE, GACHA_COST_TEN } from './data/viajeros.js'
+import { BondSystem }     from './systems/bonds.js'
+import { QuestSystem }    from './systems/quests.js'
+import { BOND_DATA, FUSION_TABLE } from './data/bonds.js'
 
 // Callbacks inyectados desde game.js via UI.init()
 let _actions = {}
@@ -792,13 +795,17 @@ export const UI = {
       })
     }
 
-    document.getElementById('viajero-panel-guardians')?.style.setProperty('display', activeTab === 'guardians' ? 'block' : 'none')
-    document.getElementById('viajero-panel-expeditions')?.style.setProperty('display', activeTab === 'expeditions' ? 'block' : 'none')
-    document.getElementById('viajero-panel-gacha')?.style.setProperty('display', activeTab === 'gacha' ? 'block' : 'none')
+    const allPanels = ['guardians', 'expeditions', 'gacha', 'bonds', 'council', 'quests']
+    allPanels.forEach(tab => {
+      document.getElementById(`viajero-panel-${tab}`)?.style.setProperty('display', activeTab === tab ? 'block' : 'none')
+    })
 
     if (activeTab === 'guardians')    this._renderGuardiansTab(state, owned)
     if (activeTab === 'expeditions')  this._renderExpeditionsTab(state, owned)
     if (activeTab === 'gacha')        this._renderGachaTab(state, owned)
+    if (activeTab === 'bonds')        this._renderBondsTab(state, owned)
+    if (activeTab === 'council')      this._renderCouncilTab(state, owned)
+    if (activeTab === 'quests')       this._renderQuestsTab(state, owned)
   },
 
   _showViajerotutorial() {
@@ -975,6 +982,195 @@ export const UI = {
     container.querySelector('#btn-pull-10')?.addEventListener('click', () => {
       _actions.gachaPull(10)
     })
+
+    // Fusion section — show Viajeros with 2+ copies (gacha only)
+    const fusionCandidates = owned.filter(o => {
+      const path = FUSION_TABLE.find(f => f.source === o.id)
+      return path && (o.copies || 0) >= 2
+    })
+    if (fusionCandidates.length > 0) {
+      const fusionHeader = document.createElement('div')
+      fusionHeader.className = 'viajero-section-header'
+      fusionHeader.textContent = t('ui.viajero.fusion.title')
+      container.appendChild(fusionHeader)
+
+      fusionCandidates.forEach(o => {
+        const path    = FUSION_TABLE.find(f => f.source === o.id)
+        const targetDef = VIAJERO_DATA.find(v => v.id === path.target)
+        const row = document.createElement('div')
+        row.className = 'fusion-row'
+        row.innerHTML = `
+          <span class="fusion-source rarity-label-${o.def.rarity}">${o.def.icon} ${t('viajero.' + o.id + '.name')}</span>
+          <span class="fusion-copies">(×${(o.copies || 0) + 1})</span>
+          <span class="fusion-arrow">→</span>
+          <span class="fusion-target rarity-label-${targetDef?.rarity || 'common'}">${targetDef?.icon || '?'} ${t('viajero.' + (path.target) + '.name')}</span>
+          <button class="btn-fuse btn-vj-action" data-source="${o.id}">${t('ui.viajero.fusion.btn')}</button>
+        `
+        container.appendChild(row)
+      })
+
+      container.querySelectorAll('.btn-fuse').forEach(btn => {
+        btn.addEventListener('click', () => _actions.fuseViajero(btn.dataset.source))
+      })
+    }
+  },
+
+  // ── Bond Web tab ───────────────────────────────────────────────────────────
+  _renderBondsTab(state, owned) {
+    const container = document.getElementById('viajero-panel-bonds')
+    if (!container) return
+    container.innerHTML = ''
+
+    const ownedIds = new Set(owned.map(o => o.id))
+
+    BOND_DATA.forEach(bond => {
+      const [idA, idB] = bond.viajeros
+      const defA = VIAJERO_DATA.find(v => v.id === idA)
+      const defB = VIAJERO_DATA.find(v => v.id === idB)
+      if (!defA || !defB) return
+
+      const hasA    = ownedIds.has(idA)
+      const hasB    = ownedIds.has(idB)
+      const active  = BondSystem.isBondActive(state, bond.id)
+      const resA    = state.viajeros.roster[idA]?.resonance || 0
+      const resB    = state.viajeros.roster[idB]?.resonance || 0
+      const combined = resA + resB
+      const pct     = Math.min(100, Math.round(combined / bond.resonanceRequired * 100))
+
+      const card = document.createElement('div')
+      card.className = `bond-card ${active ? 'bond-active' : (hasA && hasB ? 'bond-pending' : 'bond-locked')}`
+      card.innerHTML = `
+        <div class="bond-viajeros">
+          <span class="bond-vj ${hasA ? 'owned' : 'missing'}">${defA.icon} ${t('viajero.' + idA + '.name')}</span>
+          <span class="bond-link">🔗</span>
+          <span class="bond-vj ${hasB ? 'owned' : 'missing'}">${defB.icon} ${t('viajero.' + idB + '.name')}</span>
+        </div>
+        <div class="bond-effect">${t('bond.' + bond.id + '.effect')}</div>
+        ${hasA && hasB ? `
+          <div class="bond-res-track">
+            <div class="bond-res-fill" style="width:${pct}%"></div>
+          </div>
+          <div class="bond-res-label">${t('ui.bond.res_label', { n: combined, req: bond.resonanceRequired })}</div>
+        ` : `<div class="bond-hint">${t('ui.bond.need_both')}</div>`}
+        <div class="bond-status-badge ${active ? 'status-active' : 'status-locked'}">${active ? t('ui.bond.active') : t('ui.bond.locked')}</div>
+      `
+      container.appendChild(card)
+    })
+  },
+
+  // ── Council of the Nexo tab ────────────────────────────────────────────────
+  _renderCouncilTab(state, owned) {
+    const container = document.getElementById('viajero-panel-council')
+    if (!container) return
+    container.innerHTML = ''
+
+    const council = state.viajeros?.council || []
+    const MAX_SLOTS = 3
+
+    const slotsHeader = document.createElement('div')
+    slotsHeader.className = 'viajero-section-header'
+    slotsHeader.textContent = t('ui.council.title', { used: council.length, max: MAX_SLOTS })
+    container.appendChild(slotsHeader)
+
+    // Current council slots
+    for (let i = 0; i < MAX_SLOTS; i++) {
+      const slot = document.createElement('div')
+      slot.className = 'council-slot'
+      const vid = council[i]
+      if (vid) {
+        const def = VIAJERO_DATA.find(v => v.id === vid)
+        slot.innerHTML = `
+          <span class="vj-icon">${def?.icon || '?'}</span>
+          <span class="council-name rarity-label-legendario">${t('viajero.' + vid + '.name')}</span>
+          <button class="btn-council-remove btn-vj-action" data-viajero="${vid}">${t('ui.council.remove')}</button>
+        `
+      } else {
+        slot.innerHTML = `<div class="council-empty">${t('ui.council.empty')}</div>`
+      }
+      container.appendChild(slot)
+    }
+
+    // Available Legendaries not in Council
+    const availableLegendaries = owned.filter(o =>
+      o.def.rarity === 'legendario' && !council.includes(o.id)
+    )
+    if (availableLegendaries.length > 0 && council.length < MAX_SLOTS) {
+      const header2 = document.createElement('div')
+      header2.className = 'viajero-section-header'
+      header2.textContent = t('ui.council.available')
+      container.appendChild(header2)
+
+      availableLegendaries.forEach(o => {
+        const row = document.createElement('div')
+        row.className = `council-available rarity-${o.def.rarity}`
+        row.innerHTML = `
+          <span class="vj-icon">${o.def.icon}</span>
+          <span class="council-name rarity-label-legendario">${t('viajero.' + o.id + '.name')}</span>
+          <button class="btn-council-assign btn-vj-action" data-viajero="${o.id}">${t('ui.council.assign')}</button>
+        `
+        container.appendChild(row)
+      })
+    }
+
+    container.querySelectorAll('.btn-council-assign').forEach(btn => {
+      btn.addEventListener('click', () => _actions.assignCouncil(btn.dataset.viajero))
+    })
+    container.querySelectorAll('.btn-council-remove').forEach(btn => {
+      btn.addEventListener('click', () => _actions.removeFromCouncil(btn.dataset.viajero))
+    })
+  },
+
+  // ── Quest chains tab ───────────────────────────────────────────────────────
+  _renderQuestsTab(state, owned) {
+    const container = document.getElementById('viajero-panel-quests')
+    if (!container) return
+    container.innerHTML = ''
+
+    const unclaimedCount = QuestSystem.getUnclaimedCount(state)
+    if (unclaimedCount > 0) {
+      const banner = document.createElement('div')
+      banner.className = 'quests-unclaimed-banner'
+      banner.textContent = t('ui.quests.unclaimed', { n: unclaimedCount })
+      container.appendChild(banner)
+    }
+
+    owned.forEach(o => {
+      const chain = QuestSystem.getChain(state, o.id)
+      if (chain.every(item => !item.unlocked)) return  // nothing visible yet
+
+      const section = document.createElement('div')
+      section.className = 'quest-chain'
+
+      const header = document.createElement('div')
+      header.className = 'quest-chain-header'
+      header.innerHTML = `<span class="vj-icon">${o.def.icon}</span> ${t('viajero.' + o.id + '.name')}`
+      section.appendChild(header)
+
+      chain.forEach(({ quest, unlocked, conditionMet, completed, claimed }) => {
+        if (!unlocked) return
+
+        const row = document.createElement('div')
+        row.className = `quest-row ${claimed ? 'quest-done' : conditionMet ? 'quest-ready' : 'quest-pending'}`
+        row.innerHTML = `
+          <div class="quest-title">${t(quest.key + '.title')}</div>
+          <div class="quest-desc">${t(quest.key + '.desc')}</div>
+          <div class="quest-reward">${t('ui.quests.reward.' + quest.rewardType, { n: quest.rewardAmt })}</div>
+          ${conditionMet && !claimed
+            ? `<button class="btn-quest-claim btn-vj-action" data-quest="${quest.id}">${t('ui.quests.claim')}</button>`
+            : claimed
+              ? `<span class="quest-claimed-badge">✓</span>`
+              : ''
+          }
+        `
+        section.appendChild(row)
+      })
+
+      container.appendChild(section)
+    })
+
+    container.querySelectorAll('.btn-quest-claim').forEach(btn => {
+      btn.addEventListener('click', () => _actions.claimQuestReward(btn.dataset.quest))
+    })
   },
 
   _viajeroCard(o, state, action) {
@@ -986,13 +1182,20 @@ export const UI = {
       : action === 'send'
         ? `<button class="btn-vj-send btn-vj-action" data-viajero="${o.id}">${t('ui.viajero.send_btn')}</button>`
         : ''
+    const resonance  = o.resonance || 0
+    const copies     = o.copies || 0
     card.innerHTML = `
       <div class="vj-header">
         <span class="vj-icon">${o.def.icon}</span>
         <div class="vj-info">
           <div class="vj-name">${t('viajero.' + o.id + '.name')}</div>
           <div class="vj-rarity rarity-label-${o.def.rarity}">${t('viajero.rarity.' + o.def.rarity)}</div>
+          <div class="vj-resonance">
+            <div class="vj-res-bar" style="width:${Math.round(resonance / 9 * 100)}%"></div>
+          </div>
+          <div class="vj-res-label">${t('ui.viajero.resonance', { n: resonance })}</div>
           <div class="vj-desc">${t('viajero.' + o.id + '.desc')}</div>
+          ${copies > 0 ? `<div class="vj-copies">${t('ui.viajero.copies', { n: copies })}</div>` : ''}
         </div>
       </div>
       <div class="vj-artifacts">

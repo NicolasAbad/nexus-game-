@@ -1,8 +1,10 @@
 // ── Motor de ingreso offline ──────────────────────────────────────────────────
 
 import { MIN_OFFLINE_SECS } from './state.js'
-import { Production } from './production.js'
+import { Production }     from './production.js'
 import { PrestigeSystem } from '../systems/prestige.js'
+import { ViajerosSystem } from '../systems/viajeros.js'
+import { BondSystem }     from '../systems/bonds.js'
 
 export const OfflineEngine = {
   calculate(state) {
@@ -13,6 +15,8 @@ export const OfflineEngine = {
     if (prod.lte(0)) return null
 
     const capHours   = PrestigeSystem.getOfflineCapHours(state)
+      * ViajerosSystem.getOfflineCapMult(state)
+      * BondSystem.getOfflineCapMult(state)
     const capSecs    = capHours * 3600
     const cappedSecs = Math.min(secondsAway, capSecs)
     const earned     = prod.mul(cappedSecs).mul(state.offlineEfficiency)

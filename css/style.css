@@ -1307,6 +1307,198 @@ body {
   line-height: 1.5;
 }
 
+/* ── Stage 9: Resonance bar ── */
+.vj-resonance {
+  background: var(--bg-deep);
+  border-radius: 4px;
+  height: 4px;
+  width: 100%;
+  margin: 4px 0 2px;
+  overflow: hidden;
+}
+.vj-res-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #a78bfa, #7c3aed);
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+.vj-res-label {
+  font-size: .7rem;
+  color: #a78bfa;
+}
+.vj-copies {
+  font-size: .7rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* ── Bond Web ── */
+.bond-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+.bond-card.bond-active  { border-color: #a78bfa; }
+.bond-card.bond-pending { border-color: #60a5fa; }
+.bond-card.bond-locked  { opacity: .65; }
+.bond-viajeros {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.bond-vj { font-size: .85rem; font-weight: 600; }
+.bond-vj.missing { color: var(--text-dim); }
+.bond-link { color: #a78bfa; font-size: 1rem; }
+.bond-effect {
+  font-size: .8rem;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.bond-res-track {
+  background: var(--bg-deep);
+  border-radius: 4px;
+  height: 5px;
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: 3px;
+}
+.bond-res-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #a78bfa, #7c3aed);
+  border-radius: 4px;
+  transition: width 0.4s;
+}
+.bond-res-label, .bond-hint {
+  font-size: .7rem;
+  color: var(--text-dim);
+}
+.bond-status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: .7rem;
+  font-weight: 700;
+  margin-top: 6px;
+}
+.bond-status-badge.status-active { background: #4c1d95; color: #a78bfa; }
+.bond-status-badge.status-locked { background: #1e1b2e; color: #555; }
+
+/* ── Fusion ── */
+.fusion-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.fusion-source, .fusion-target { font-size: .85rem; font-weight: 600; }
+.fusion-copies { font-size: .75rem; color: var(--text-secondary); }
+.fusion-arrow { color: #a78bfa; font-size: 1rem; }
+.btn-fuse {
+  margin-left: auto;
+  background: linear-gradient(135deg, #4c1d95, #7c3aed);
+  color: #fff;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: .8rem;
+}
+.btn-fuse:hover { background: linear-gradient(135deg, #5b21b6, #8b5cf6); }
+
+/* ── Council of the Nexo ── */
+.council-slot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-card);
+  border: 1px solid #fbbf24;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+}
+.council-empty {
+  color: var(--text-dim);
+  font-size: .85rem;
+  font-style: italic;
+}
+.council-name { font-size: .9rem; font-weight: 600; }
+.council-available {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  margin-bottom: 6px;
+}
+.btn-council-assign, .btn-council-remove {
+  margin-left: auto;
+  background: #1e1b2e;
+  border: 1px solid #fbbf24;
+  color: #fbbf24;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: .8rem;
+}
+.btn-council-assign:hover { background: #78350f; }
+.btn-council-remove:hover  { background: #450a0a; }
+
+/* ── Quest chains ── */
+.quests-unclaimed-banner {
+  background: #1e1b2e;
+  border: 1px solid #fbbf24;
+  color: #fbbf24;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: .85rem;
+  margin-bottom: 12px;
+  text-align: center;
+}
+.quest-chain { margin-bottom: 16px; }
+.quest-chain-header {
+  font-weight: 700;
+  font-size: .9rem;
+  color: var(--accent);
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+.quest-row {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 5px;
+}
+.quest-row.quest-ready  { border-color: #fbbf24; }
+.quest-row.quest-done   { opacity: .55; }
+.quest-title { font-size: .85rem; font-weight: 600; margin-bottom: 3px; }
+.quest-desc  { font-size: .78rem; color: var(--text-secondary); margin-bottom: 4px; }
+.quest-reward { font-size: .75rem; color: #a78bfa; margin-bottom: 6px; }
+.quest-claimed-badge {
+  display: inline-block;
+  color: var(--success);
+  font-size: 1rem;
+  font-weight: 700;
+}
+.btn-quest-claim {
+  background: linear-gradient(135deg, #78350f, #b45309);
+  color: #fde68a;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: .8rem;
+  font-weight: 600;
+}
+.btn-quest-claim:hover { background: linear-gradient(135deg, #92400e, #d97706); }
+
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar               { width: 5px; }
 ::-webkit-scrollbar-track         { background: var(--bg-deep); }

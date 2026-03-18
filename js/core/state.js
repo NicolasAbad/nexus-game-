@@ -4,7 +4,7 @@ export const SAVE_KEY         = 'nexus_save_v1'   // misma key para cargar saves
 export const SAVE_INTERVAL_MS = 10_000
 export const MIN_OFFLINE_SECS = 30
 export const UI_TICK_MS       = 100
-export const CURRENT_VERSION  = 10
+export const CURRENT_VERSION  = 11
 
 export function createInitialState() {
   return {
@@ -98,11 +98,13 @@ export function createInitialState() {
 
     // Viajeros
     viajeros: {
-      roster:        {},  // { viajeroid: { resonance, artifacts: { head, weapon, relic }, copies? } }
+      roster:        {},  // { viajeroid: { resonance, expeditions, artifacts: { head, weapon, relic }, copies? } }
       assignments:   {},  // { portalId: viajeroid }
       expeditions:   [],  // [{ viajeroid, returnsAt, durationH, rarity }]
       artifacts:     {},  // { instId: { defId, stars, copies } }
       gacha:         { pityCount: 0, history: [] },
+      council:       [],  // up to 3 Legendary viajero ids in Council of the Nexo
+      quests:        {},  // { questId: { completed, claimed } }
       tutorialSeen:  false,
       _nextArtifactId: 1,
     },
@@ -231,6 +233,26 @@ export function migrateState(state) {
       state.viajeros._nextArtifactId = state.viajeros._nextArtifactId || 1
     }
     state.version = 10
+  }
+
+  if (v < 11) {
+    // Add council and quests to viajeros, add expeditions counter to each roster entry
+    if (!state.viajeros) {
+      state.viajeros = {
+        roster: {}, assignments: {}, expeditions: [],
+        artifacts: {}, gacha: { pityCount: 0, history: [] },
+        council: [], quests: {},
+        tutorialSeen: false, _nextArtifactId: 1,
+      }
+    } else {
+      state.viajeros.council = state.viajeros.council || []
+      state.viajeros.quests  = state.viajeros.quests  || {}
+      // Backfill expeditions counter on existing roster entries
+      for (const entry of Object.values(state.viajeros.roster || {})) {
+        if (entry && entry.expeditions === undefined) entry.expeditions = 0
+      }
+    }
+    state.version = 11
   }
 
   return state

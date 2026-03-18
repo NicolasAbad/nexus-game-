@@ -24,6 +24,8 @@ import { LoreSystem }    from './systems/lore.js'
 import { RiftSystem }    from './systems/rifts.js'
 import { PrestigeSystem } from './systems/prestige.js'
 import { ViajerosSystem } from './systems/viajeros.js'
+import { QuestSystem }   from './systems/quests.js'
+import { DIALOGUE_EVENTS } from './data/viajero_lore.js'
 
 // ── Estado global ─────────────────────────────────────────────────────────────
 let state       = null
@@ -140,7 +142,7 @@ function loop(ts) {
     // Viajero expeditions
     const completedExps = ViajerosSystem.tickExpeditions(state, baseProd)
     if (completedExps.length > 0) {
-      completedExps.forEach(({ viajeroid, loot }) => {
+      completedExps.forEach(({ viajeroid, loot, loreKeys }) => {
         if (loot.energy && loot.energy.gt(0)) {
           state.energy            = state.energy.add(loot.energy)
           state.totalEnergyEarned = state.totalEnergyEarned.add(loot.energy)
@@ -151,11 +153,16 @@ function loop(ts) {
         if (loot.crystals > 0) {
           state.crystals = (state.crystals || 0) + loot.crystals
         }
-        const defId = viajeroid
         UI.showNotification(t('notif.expedition_complete', {
-          name: t('viajero.' + defId + '.name'),
+          name: t('viajero.' + viajeroid + '.name'),
           energy: loot.energy ? UI.fmtPublic(loot.energy) : '0',
         }), 'success')
+        // Resonance lore fragments unlocked on this expedition
+        if (loreKeys?.length) {
+          loreKeys.forEach(key => UI.showNotification(t(key), 'unlock'))
+        }
+        // Reactive dialogue
+        _triggerDialogue('expedition_return')
       })
       UI.renderViajeros(state)
       UI.renderCrystals(state)
@@ -172,6 +179,13 @@ function loop(ts) {
 
     // Prestige live counter (updates every UI tick)
     UI.renderPrestige(state)
+
+    // Quest completion check (Stage 9)
+    const newlyCompleted = QuestSystem.tick(state)
+    if (newlyCompleted.length > 0) {
+      newlyCompleted.forEach(qid => UI.showNotification(t('notif.quest_completed', { quest: t(qid + '.title') }), 'success'))
+      UI.renderViajeros(state)
+    }
 
     _lastUITick = ts
   }
@@ -235,8 +249,13 @@ function buyPortalN(portalId, n) {
   const fresh = UnlockSystem.check(state)
   fresh.forEach(u => UI.applyUnlock(u, state))
 
-  Analytics.track('portal_bought', { portalId, count: state.portals[portalId], batch: n })
-  EventBus.emit('portal_bought', { portalId, count: state.portals[portalId] })
+  // Portal milestone resonance for assigned Guardian (+1 at 10/25/50/100)
+  const newCount = state.portals[portalId]
+  const loreKeys = ViajerosSystem.incrementResonanceForPortalMilestone(state, portalId, newCount)
+  loreKeys.forEach(key => UI.showNotification(t(key), 'unlock'))
+
+  Analytics.track('portal_bought', { portalId, count: newCount, batch: n })
+  EventBus.emit('portal_bought', { portalId, count: newCount })
   return true
 }
 
@@ -305,6 +324,7 @@ function activateAbility(abilityId) {
   }
 
   state.missions.daily.abilitiesUsed++
+  _triggerDialogue('ability_use')
 
   UI.renderAbilities(state)
   Analytics.track('ability_used', { abilityId })
@@ -338,6 +358,11 @@ function prestige() {
       'unlock'
     )
 
+    // Stage 9: resonance +1 for all owned Viajeros on prestige
+    ViajerosSystem.incrementResonanceForPrestige(state).forEach(({ viajeroid, loreKey }) => {
+      UI.showNotification(t(loreKey), 'unlock')
+    })
+
     RiftSystem.scheduleFirst(state)
     UI.build()
     UI.renderAll(state)
@@ -348,6 +373,7 @@ function prestige() {
     UI.renderViajeros(state)
     Analytics.track('prestige', { runCount: runNumber, fragments: earned })
     EventBus.emit('prestige', { runCount: runNumber })
+    _triggerDialogue('prestige')
   })
 }
 
@@ -385,6 +411,52 @@ function gachaPull(n) {
   UI.renderCrystals(state)
   Analytics.track('gacha_pull', { n, results: result.results.map(r => r.rarity) })
   EventBus.emit('gacha_pull', { n })
+}
+
+function fuseViajero(sourceId) {
+  const result = ViajerosSystem.fuseViajero(state, sourceId)
+  if (result.ok) {
+    UI.showNotification(t('notif.viajero_fused', {
+      source: t('viajero.' + sourceId + '.name'),
+      target: t('viajero.' + result.targetId + '.name'),
+    }), 'unlock')
+    UI.renderViajeros(state)
+  } else {
+    UI.showNotification(t('ui.viajero.fusion.fail_' + (result.reason || 'unknown')), 'info')
+  }
+}
+
+function assignCouncil(viajeroid) {
+  const ok = ViajerosSystem.assignCouncil(state, viajeroid)
+  if (ok) {
+    UI.showNotification(t('notif.council_assigned', { name: t('viajero.' + viajeroid + '.name') }), 'unlock')
+    UI.renderViajeros(state)
+  }
+}
+
+function removeFromCouncil(viajeroid) {
+  ViajerosSystem.removeFromCouncil(state, viajeroid)
+  UI.renderViajeros(state)
+}
+
+function claimQuestReward(questId) {
+  const reward = QuestSystem.claimReward(state, questId)
+  if (reward) {
+    UI.showNotification(t('ui.quests.reward_claimed.' + reward.type, { n: reward.amt }), 'success')
+    UI.renderViajeros(state)
+    UI.renderCrystals(state)
+  }
+}
+
+// Picks a random owned Viajero with dialogue for eventType and shows notification
+function _triggerDialogue(eventType) {
+  const dialogs = DIALOGUE_EVENTS[eventType]
+  if (!dialogs) return
+  const roster  = state.viajeros?.roster || {}
+  const valid   = dialogs.filter(d => !!roster[d.viajeroId])
+  if (valid.length === 0) return
+  const pick = valid[Math.floor(Math.random() * valid.length)]
+  UI.showNotification(t(pick.key), 'info')
 }
 
 function buyPrestigeNode(nodeId) {
@@ -428,7 +500,10 @@ function init() {
       state.energy            = state.energy.add(off.earned)
       state.totalEnergyEarned = state.totalEnergyEarned.add(off.earned)
       Analytics.track('offline_income', { seconds: Math.round(off.secondsAway) })
-      setTimeout(() => UI.showOfflineModal(off, state.offlineCap), 200)
+      setTimeout(() => {
+        UI.showOfflineModal(off, state.offlineCap)
+        if (off.secondsAway >= 8 * 3600) _triggerDialogue('long_return')
+      }, 200)
     }
   } else {
     state = createInitialState()
@@ -450,6 +525,10 @@ function init() {
     sendExpedition,
     assignGuardian,
     gachaPull,
+    fuseViajero,
+    assignCouncil,
+    removeFromCouncil,
+    claimQuestReward,
     reset,
     manualSave,
     getState:        () => state,
