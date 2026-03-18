@@ -3,6 +3,7 @@
 //    getProgress(state, mission) → { current, target }
 //    getNextHistory(state) → mission object o null
 
+import '../utils/decimal.js'
 import { HISTORY_MISSIONS, DAILY_MISSIONS, WEEKLY_MISSION } from '../data/missions.js'
 
 // ── Streak milestone rewards ───────────────────────────────────────────────────

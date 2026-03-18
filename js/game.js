@@ -307,7 +307,7 @@ function prestige() {
     RiftSystem.scheduleFirst(state)
     UI.build()
     UI.renderAll(state)
-    Tutorial._render(state)
+    Tutorial.render(state)
     UI.renderMissions(state)
     UI.renderNextObjective(state)
     UI.renderLorePanel(state)
@@ -334,7 +334,7 @@ async function reset() {
   state = createInitialState()
   UI.build()
   UI.renderAll(state)
-  Tutorial._render(state)
+  Tutorial.render(state)
   Analytics.track('reset')
   EventBus.emit('reset')
 }
@@ -386,7 +386,7 @@ function init() {
 
   UI.build()
   UI.renderAll(state)
-  Tutorial._render(state)
+  Tutorial.render(state)
   UI.renderMissions(state)
   UI.renderNextObjective(state)
   UI.renderLorePanel(state)

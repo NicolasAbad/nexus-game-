@@ -135,17 +135,6 @@ export function migrateState(state) {
     state.version = 4
   }
 
-  if (v < 6) {
-    if (!state.missions) {
-      state.missions = {
-        history: {},
-        daily:   { lastReset: 0, completed: {}, clicks: 0, portalsBought: 0, abilitiesUsed: 0 },
-        weekly:  { lastReset: 0, completed: {}, portalsBought: 0 },
-      }
-    }
-    state.version = 6
-  }
-
   if (v < 5) {
     // Agregar nuevos portales conservando los existentes
     state.portals = {
@@ -169,6 +158,17 @@ export function migrateState(state) {
     // Inicializar tracker de sinergias
     state.activeSynergies = {}
     state.version = 5
+  }
+
+  if (v < 6) {
+    if (!state.missions) {
+      state.missions = {
+        history: {},
+        daily:   { lastReset: 0, completed: {}, clicks: 0, portalsBought: 0, abilitiesUsed: 0 },
+        weekly:  { lastReset: 0, completed: {}, portalsBought: 0 },
+      }
+    }
+    state.version = 6
   }
 
   if (v < 7) {

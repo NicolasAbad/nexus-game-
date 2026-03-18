@@ -10,7 +10,7 @@ export const Tutorial = {
     if (state.tutorialStep === -1) return
     if (toStep <= state.tutorialStep) return
     state.tutorialStep = toStep
-    this._render(state)
+    this.render(state)
     // Step 4 es solo informativo — se auto-completa después de 4s
     if (toStep === 4) {
       setTimeout(() => {
@@ -21,10 +21,10 @@ export const Tutorial = {
 
   complete(state) {
     state.tutorialStep = -1
-    this._render(state)
+    this.render(state)
   },
 
-  _render(state) {
+  render(state) {
     const banner = document.getElementById('tutorial-banner')
     const text   = document.getElementById('tutorial-text')
     const step   = state.tutorialStep

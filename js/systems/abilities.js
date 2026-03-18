@@ -1,5 +1,6 @@
 // ── Sistema de habilidades activas ────────────────────────────────────────────
 
+import '../utils/decimal.js'
 import { ABILITY_DATA, EXP_THRESHOLDS } from '../data/abilities.js'
 import { PORTAL_DATA }                  from '../data/portals.js'
 import { Production }                   from '../core/production.js'
