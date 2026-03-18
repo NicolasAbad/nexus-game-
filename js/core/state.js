@@ -4,7 +4,7 @@ export const SAVE_KEY         = 'nexus_save_v1'   // misma key para cargar saves
 export const SAVE_INTERVAL_MS = 10_000
 export const MIN_OFFLINE_SECS = 30
 export const UI_TICK_MS       = 100
-export const CURRENT_VERSION  = 11
+export const CURRENT_VERSION  = 12
 
 export function createInitialState() {
   return {
@@ -107,6 +107,12 @@ export function createInitialState() {
       quests:        {},  // { questId: { completed, claimed } }
       tutorialSeen:  false,
       _nextArtifactId: 1,
+    },
+
+    // Combos de Portales
+    combos: {
+      passive:  {},  // { comboId: true } — activos mientras se mantiene el threshold
+      consumed: {},  // { comboId: true } — sacrificios permanentes
     },
 
     // Meta
@@ -253,6 +259,16 @@ export function migrateState(state) {
       }
     }
     state.version = 11
+  }
+
+  if (v < 12) {
+    if (!state.combos) {
+      state.combos = { passive: {}, consumed: {} }
+    } else {
+      state.combos.passive  = state.combos.passive  || {}
+      state.combos.consumed = state.combos.consumed || {}
+    }
+    state.version = 12
   }
 
   return state

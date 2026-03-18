@@ -20,6 +20,8 @@ import { VIAJERO_DATA, ARTIFACT_DATA, GACHA_COST_SINGLE, GACHA_COST_TEN } from '
 import { BondSystem }     from './systems/bonds.js'
 import { QuestSystem }    from './systems/quests.js'
 import { BOND_DATA, FUSION_TABLE } from './data/bonds.js'
+import { ComboSystem }   from './systems/combos.js'
+import { PASSIVE_COMBOS, CONSUMABLE_COMBOS } from './data/combos.js'
 
 // Callbacks inyectados desde game.js via UI.init()
 let _actions = {}
@@ -72,6 +74,7 @@ export const UI = {
         this._buildAbilities()
         this.renderAll(_actions.getState())
         this.renderViajeros(_actions.getState())
+        this.renderCombos(_actions.getState())
       })
     }
     document.getElementById('offline-modal-close').addEventListener('click', () => {
@@ -258,6 +261,7 @@ export const UI = {
     this.renderRift(state)
     this.renderPrestige(state)
     this.renderViajeros(state)
+    this.renderCombos(state)
     this.renderCrystals(state)
   },
 
@@ -1253,6 +1257,93 @@ export const UI = {
       cleanup()
     }
     btnCancel.onclick = () => cleanup()
+  },
+
+  // ── Combos de Portales panel ──────────────────────────────────────────────
+  renderCombos(state) {
+    const section = document.getElementById('section-combos')
+    if (!section) return
+
+    // Show once all basic portals are unlocked
+    const basicUnlocked = ['ignea','abismal','temporal','vacio'].every(id => (state.portals[id] || 0) >= 1)
+    if (!basicUnlocked) { section.style.display = 'none'; return }
+    section.style.display = 'block'
+
+    const passiveEl    = document.getElementById('combos-passive-list')
+    const consumableEl = document.getElementById('combos-consumable-list')
+    if (!passiveEl || !consumableEl) return
+
+    // ── Passive combos ────────────────────────────────────────────────────
+    passiveEl.innerHTML = ''
+    PASSIVE_COMBOS.forEach(combo => {
+      const active = !!(state.combos?.passive?.[combo.id])
+      const portals = state.portals || {}
+
+      // Progress: pick the portal with highest % toward its threshold
+      const progList = combo.portals.map(p => ({
+        id: p.id, have: portals[p.id] || 0, need: p.count,
+      }))
+      const allMet = progList.every(p => p.have >= p.need)
+
+      const card = document.createElement('div')
+      card.className = `combo-card ${active ? 'combo-active' : 'combo-pending'}`
+
+      const requiresStr = combo.portals.map(p =>
+        `${t('portal.' + p.id + '.name')} ×${p.count}`
+      ).join(', ')
+
+      const progBars = progList.map(p => {
+        const pct = Math.min(Math.round(p.have / p.need * 100), 100)
+        return `<div class="combo-prog-row">
+          <span class="combo-prog-label">${t('portal.' + p.id + '.name')} ${p.have}/${p.need}</span>
+          <div class="combo-prog-track"><div class="combo-prog-fill" style="width:${pct}%"></div></div>
+        </div>`
+      }).join('')
+
+      card.innerHTML = `
+        <div class="combo-header">
+          <span class="combo-status-icon">${active ? '✅' : '🔓'}</span>
+          <span class="combo-name">${t('combo.' + combo.id + '.name')}</span>
+        </div>
+        <div class="combo-effect">${t('combo.' + combo.id + '.effect')}</div>
+        <div class="combo-requires">${t('combo.requires')}: ${requiresStr}</div>
+        ${!active ? `<div class="combo-progress">${progBars}</div>` : ''}
+      `
+      passiveEl.appendChild(card)
+    })
+
+    // ── Consumable combos ─────────────────────────────────────────────────
+    consumableEl.innerHTML = ''
+    CONSUMABLE_COMBOS.forEach(combo => {
+      const done = !!(state.combos?.consumed?.[combo.id])
+      const can  = ComboSystem.canConsume(state, combo.id)
+
+      const card = document.createElement('div')
+      card.className = `combo-card combo-consumable ${done ? 'combo-done' : can ? 'combo-can-consume' : 'combo-locked'}`
+
+      const costStr = combo.cost.map(c =>
+        `${t('portal.' + c.id + '.name')} ×${c.count} (${t('combo.have')}: ${state.portals[c.id] || 0})`
+      ).join(', ')
+
+      card.innerHTML = `
+        <div class="combo-header">
+          <span class="combo-status-icon">${done ? '💫' : '⚡'}</span>
+          <span class="combo-name">${t('combo.' + combo.id + '.name')}</span>
+        </div>
+        <div class="combo-effect">${t('combo.' + combo.id + '.effect')}</div>
+        <div class="combo-cost-label">${t('combo.sacrifice')}: ${costStr}</div>
+        ${!done && can
+          ? `<button class="btn-consume-combo" data-combo="${combo.id}">${t('combo.sacrifice_btn')}</button>`
+          : done ? `<span class="combo-done-label">${t('combo.done')}</span>` : ''
+        }
+      `
+      consumableEl.appendChild(card)
+    })
+
+    // Wire sacrifice buttons
+    consumableEl.querySelectorAll('.btn-consume-combo').forEach(btn => {
+      btn.addEventListener('click', () => _actions.executeConsumeCombo(btn.dataset.combo))
+    })
   },
 
   // ── Partícula de click ────────────────────────────────────────────────────

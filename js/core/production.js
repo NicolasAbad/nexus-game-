@@ -5,6 +5,7 @@ import { UPGRADE_DATA } from '../data/upgrades.js'
 import { VIAJERO_DATA } from '../data/viajeros.js'
 import { Synergies }    from '../systems/synergies.js'
 import { BondSystem }   from '../systems/bonds.js'
+import { ComboSystem }  from '../systems/combos.js'
 
 // ── Artifact stat lookup (inlined to avoid circular dep) ──────────────────────
 // Mirrors ARTIFACT_DATA stat fields from data/viajeros.js. Keep in sync.
@@ -128,6 +129,7 @@ export const Production = {
       .mul(_guardianPortalMult(state, portalId))
       .mul(BondSystem.getPortalMult(state, portalId))
       .mul(BondSystem.getAllPortalMult(state))
+      .mul(ComboSystem.getPortalMult(state, portalId))
   },
 
   // Producción/s total — mejoras globales + sinergias + guardianes
@@ -141,6 +143,7 @@ export const Production = {
       .mul(Synergies.getMultiplier(state))
       .mul(this.getGuardianGlobalMult(state))
       .mul(BondSystem.getGlobalMult(state))
+      .mul(ComboSystem.getGlobalMult(state))
   },
 
   // Poder de click — incluye weapon artifacts + bonusEffect click_mult
@@ -150,7 +153,8 @@ export const Production = {
       .reduce((m, u) => m * u.multiplier, 1)
 
     const artifactMult = this._artifactClickMult(state)
-    const flatPower    = new Decimal(flatMult).mul(artifactMult)
+    const comboMult    = ComboSystem.getClickPowerMult(state)
+    const flatPower    = new Decimal(flatMult).mul(artifactMult).mul(comboMult)
 
     if (!totalProd) return flatPower
 
@@ -159,7 +163,7 @@ export const Production = {
     if (prodUpgs.length === 0) return flatPower
 
     const bestMinutes = Math.max(...prodUpgs.map(u => u.prodMinutes))
-    const prodBased   = totalProd.mul(bestMinutes * 60).mul(artifactMult)
+    const prodBased   = totalProd.mul(bestMinutes * 60).mul(artifactMult).mul(comboMult)
     return prodBased.gt(flatPower) ? prodBased : flatPower
   },
 

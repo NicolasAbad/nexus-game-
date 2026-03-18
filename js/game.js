@@ -26,6 +26,7 @@ import { PrestigeSystem } from './systems/prestige.js'
 import { ViajerosSystem } from './systems/viajeros.js'
 import { QuestSystem }   from './systems/quests.js'
 import { DIALOGUE_EVENTS } from './data/viajero_lore.js'
+import { ComboSystem }  from './systems/combos.js'
 
 // ── Estado global ─────────────────────────────────────────────────────────────
 let state       = null
@@ -254,6 +255,13 @@ function buyPortalN(portalId, n) {
   const loreKeys = ViajerosSystem.incrementResonanceForPortalMilestone(state, portalId, newCount)
   loreKeys.forEach(key => UI.showNotification(t(key), 'unlock'))
 
+  // Check for newly activated passive combos
+  const newCombos = ComboSystem.checkNew(state)
+  newCombos.forEach(id =>
+    UI.showNotification(t('notif.combo_activated', { name: t('combo.' + id + '.name') }), 'unlock')
+  )
+  if (newCombos.length > 0) UI.renderCombos(state)
+
   Analytics.track('portal_bought', { portalId, count: newCount, batch: n })
   EventBus.emit('portal_bought', { portalId, count: newCount })
   return true
@@ -459,6 +467,18 @@ function _triggerDialogue(eventType) {
   UI.showNotification(t(pick.key), 'info')
 }
 
+function executeConsumeCombo(comboId) {
+  const result = ComboSystem.executeConsume(state, comboId)
+  if (result.ok) {
+    UI.showNotification(t('notif.combo_consumed', { name: t('combo.' + comboId + '.name') }), 'unlock')
+    UI.renderCombos(state)
+    // Re-render portals so counts update after sacrifice
+    PORTAL_DATA.forEach(p => UI.renderPortalCard(p.id, state))
+  } else {
+    UI.showNotification(t('notif.combo_cannot_consume'), 'info')
+  }
+}
+
 function buyPrestigeNode(nodeId) {
   const result = PrestigeSystem.buyNode(state, nodeId)
   if (result.ok) {
@@ -529,6 +549,7 @@ function init() {
     assignCouncil,
     removeFromCouncil,
     claimQuestReward,
+    executeConsumeCombo,
     reset,
     manualSave,
     getState:        () => state,
@@ -545,6 +566,7 @@ function init() {
   UI.renderLorePanel(state)
   UI.renderPrestige(state)
   UI.renderViajeros(state)
+  UI.renderCombos(state)
 
   RiftSystem.scheduleFirst(state)
 

@@ -1499,6 +1499,94 @@ body {
 }
 .btn-quest-claim:hover { background: linear-gradient(135deg, #92400e, #d97706); }
 
+/* ── COMBOS DE PORTALES ── */
+.combos-sub-title {
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin: 14px 0 6px;
+}
+.combos-consumable-title {
+  margin-top: 20px;
+  color: #f97316;
+}
+
+.combo-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.combo-active   { border-color: #10b981; background: rgba(16,185,129,.08); }
+.combo-pending  { border-color: var(--border); }
+.combo-done     { border-color: #a855f7; background: rgba(168,85,247,.08); }
+.combo-can-consume { border-color: #f97316; background: rgba(249,115,22,.08); }
+.combo-locked   { opacity: .7; }
+
+.combo-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.combo-status-icon { font-size: 1rem; }
+.combo-name {
+  font-weight: 700;
+  font-size: .9rem;
+  color: var(--text-main);
+}
+.combo-effect {
+  font-size: .8rem;
+  color: #a5b4fc;
+  margin-bottom: 4px;
+}
+.combo-requires, .combo-cost-label {
+  font-size: .75rem;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+/* Progress bars inside combo cards */
+.combo-progress { margin-top: 6px; }
+.combo-prog-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.combo-prog-label { font-size: .7rem; color: var(--text-dim); min-width: 120px; }
+.combo-prog-track {
+  flex: 1;
+  height: 4px;
+  background: var(--bg-deep);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.combo-prog-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  border-radius: 2px;
+  transition: width .3s ease;
+}
+
+/* Sacrifice button */
+.btn-consume-combo {
+  background: linear-gradient(135deg, #9a3412, #ea580c);
+  color: #fed7aa;
+  border: none;
+  padding: 5px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+.btn-consume-combo:hover { background: linear-gradient(135deg, #c2410c, #f97316); }
+
+.combo-done-label {
+  font-size: .78rem;
+  color: #a855f7;
+  font-weight: 600;
+}
+
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar               { width: 5px; }
 ::-webkit-scrollbar-track         { background: var(--bg-deep); }

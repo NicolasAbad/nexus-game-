@@ -670,4 +670,61 @@ export const STRINGS_ES = {
   'notif.viajero_fused':    '🔮 ¡{source} fusionado en {target}!',
   'notif.council_assigned': '✦ ¡{name} se unió al Consejo del Nexo!',
   'notif.quest_completed':  '📜 Misión lista para reclamar: {quest}',
+
+  // ── Stage 10 — Combos ──────────────────────────────────────────────────────
+  'ui.section.combos': 'Combos de Portales',
+  'ui.combos.passive_title':    'Combos Pasivos',
+  'ui.combos.consumable_title': 'Combos de Sacrificio',
+
+  'combo.requires':      'Requiere',
+  'combo.have':          'Tenés',
+  'combo.sacrifice':     'Costo de sacrificio',
+  'combo.sacrifice_btn': 'Sacrificar Portales',
+  'combo.done':          'Activo permanentemente',
+
+  // Combos pasivos
+  'combo.fire_tide.name':       'Marea de Fuego',
+  'combo.fire_tide.effect':     '×1.5 producción de portales Ígnea y Abismal',
+
+  'combo.time_void.name':       'Vacío Temporal',
+  'combo.time_void.effect':     '+2h al límite de ingresos offline',
+
+  'combo.primordial_heart.name':   'Corazón Primordial',
+  'combo.primordial_heart.effect': 'Click power ×3',
+
+  'combo.star_chaos.name':      'Caos Estelar',
+  'combo.star_chaos.effect':    '×1.25 producción global',
+
+  'combo.infernal_depths.name':   'Profundidades Infernales',
+  'combo.infernal_depths.effect': '+20% eficiencia offline',
+
+  'combo.time_celestial.name':   'Tiempo Celestial',
+  'combo.time_celestial.effect': 'Fragmentos de Prestige ×1.5',
+
+  'combo.void_chaos.name':      'Vacío Caótico',
+  'combo.void_chaos.effect':    '×1.5 producción global',
+
+  'combo.all_eight.name':       'Los Ocho',
+  'combo.all_eight.effect':     '×2 producción global, ×1.2 para todos los portales',
+
+  // Combos consumibles
+  'combo.ember_sacrifice.name':       'Sacrificio de Brasas',
+  'combo.ember_sacrifice.effect':     '×2 producción global permanente',
+
+  'combo.time_convergence.name':      'Convergencia Temporal',
+  'combo.time_convergence.effect':    '+6h de límite offline permanente',
+
+  'combo.chaos_singularity.name':     'Singularidad del Caos',
+  'combo.chaos_singularity.effect':   '×5 producción global permanente',
+
+  'combo.celestial_ascension.name':   'Ascensión Celestial',
+  'combo.celestial_ascension.effect': 'Click power ×10 permanente',
+
+  'combo.nexo_rebirth.name':    'Renacimiento del Nexo',
+  'combo.nexo_rebirth.effect':  'Fragmentos de Prestige ×2 permanente',
+
+  // Notificaciones
+  'notif.combo_activated':     '✦ ¡Combo activado: {name}!',
+  'notif.combo_consumed':      '💫 ¡Sacrificio completo — {name} activo permanentemente!',
+  'notif.combo_cannot_consume': 'No tenés suficientes portales para sacrificar.',
 }

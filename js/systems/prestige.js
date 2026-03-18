@@ -16,6 +16,7 @@
 
 import { PRESTIGE_NODES, FRAGMENT_SCORING, PRESTIGE_FULL_ENERGY, PRESTIGE_EARLY_YIELD } from '../data/prestige.js'
 import { PORTAL_DATA } from '../data/portals.js'
+import { ComboSystem } from './combos.js'
 
 const ALL_PORTAL_IDS = ['ignea', 'abismal', 'temporal', 'vacio', 'celestial', 'caos', 'primordial', 'singular']
 
@@ -72,7 +73,11 @@ export const PrestigeSystem = {
     const maxLevelAbilities = Object.values(state.abilities || {}).filter(a => a.level >= 5).length
     total += maxLevelAbilities * FRAGMENT_SCORING.abilityMaxLevel
 
-    return Math.max(1, total)
+    // Combos pasivos activos: +2 per combo
+    total += ComboSystem.getActivePassiveCount(state) * 2
+
+    // Multiplicador de combos (pasivos + consumidos)
+    return Math.max(1, Math.round(total * ComboSystem.getPrestigeFragMult(state)))
   },
 
   // ── Comprar nodo del árbol ──────────────────────────────────────────────────
@@ -167,6 +172,12 @@ export const PrestigeSystem = {
       _nextArtifactId: oldV._nextArtifactId || 1,
     }
     newState.crystals = oldState.crystals || 0
+
+    // Combos: consumed bonuses are permanent; passive resets (portals reset)
+    newState.combos = {
+      passive:  {},
+      consumed: { ...(oldState.combos?.consumed || {}) },
+    }
 
     // Re-apply all tree effects onto fresh state
     Object.keys(newState.prestige.tree).forEach(nodeId => {
