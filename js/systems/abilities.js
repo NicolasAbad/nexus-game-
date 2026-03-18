@@ -200,7 +200,8 @@ export const Abilities = {
 
     ast.lastUsed  = now
     ast.usesToday++
-    ast.exp++
+    // A3 prestige node grants +50% EXP per use
+    ast.exp += state.prestige?.tree?.a3 ? 1.5 : 1
 
     const prevLevel = ast.level
     this._checkLevelUp(ast)

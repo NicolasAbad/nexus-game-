@@ -4,7 +4,7 @@ export const SAVE_KEY         = 'nexus_save_v1'   // misma key para cargar saves
 export const SAVE_INTERVAL_MS = 10_000
 export const MIN_OFFLINE_SECS = 30
 export const UI_TICK_MS       = 100
-export const CURRENT_VERSION  = 8
+export const CURRENT_VERSION  = 9
 
 export function createInitialState() {
   return {
@@ -82,6 +82,15 @@ export function createInitialState() {
       activeUntil:   0,
       nextSpawnAt:   0,
       totalClicked:  0,
+    },
+
+    // Prestige
+    prestige: {
+      fragments:     0,
+      totalEarned:   0,
+      runCount:      0,
+      tree:          {},
+      storyUnlocked: [],
     },
 
     // Meta
@@ -178,6 +187,13 @@ export function migrateState(state) {
       state.rifts = { active: false, activeUntil: 0, nextSpawnAt: 0, totalClicked: 0 }
     }
     state.version = 8
+  }
+
+  if (v < 9) {
+    if (!state.prestige) {
+      state.prestige = { fragments: 0, totalEarned: 0, runCount: 0, tree: {}, storyUnlocked: [] }
+    }
+    state.version = 9
   }
 
   return state

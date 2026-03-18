@@ -81,4 +81,14 @@ export const UPGRADE_DATA = [
   { id: 'si3', portalId: 'singular', multiplier: 5,  cost: 960000000000,     requires: 10 },
   { id: 'si4', portalId: 'singular', multiplier: 10, cost: 9000000000000,    requires: 25 },
   { id: 'si5', portalId: 'singular', multiplier: 25, cost: 90000000000000,   requires: 50 },
+
+  // ── Ascended tier 6 (×150, req prestige node) ────────────────────────────
+  { id: 'ig6', portalId: 'ignea',     multiplier: 150, cost: 100000000000,      requires: 100, ascended: true, prestigeNode: 'b1' },
+  { id: 'ab6', portalId: 'abismal',   multiplier: 150, cost: 200000000000,      requires: 100, ascended: true, prestigeNode: 'b2' },
+  { id: 'tm6', portalId: 'temporal',  multiplier: 150, cost: 500000000000,      requires: 100, ascended: true, prestigeNode: 'b2' },
+  { id: 'va6', portalId: 'vacio',     multiplier: 150, cost: 1000000000000,     requires: 100, ascended: true, prestigeNode: 'b3' },
+  { id: 'ce6', portalId: 'celestial', multiplier: 150, cost: 5000000000000,     requires: 100, ascended: true, prestigeNode: 'b3' },
+  { id: 'ca6', portalId: 'caos',      multiplier: 150, cost: 20000000000000,    requires: 100, ascended: true, prestigeNode: 'b4' },
+  { id: 'pr6', portalId: 'primordial',multiplier: 150, cost: 100000000000000,   requires: 100, ascended: true, prestigeNode: 'b4' },
+  { id: 'si6', portalId: 'singular',  multiplier: 150, cost: 500000000000000,   requires: 100, ascended: true, prestigeNode: 'b4' },
 ]

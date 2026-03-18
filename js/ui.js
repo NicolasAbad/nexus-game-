@@ -10,9 +10,11 @@ import { fmt, fmtTime }  from './utils/format.js'
 import { t, i18n }       from './utils/i18n.js'
 import { MissionSystem } from './systems/missions.js'
 import { HISTORY_MISSIONS, DAILY_MISSIONS, WEEKLY_MISSION } from './data/missions.js'
-import { LoreSystem }    from './systems/lore.js'
-import { RiftSystem }    from './systems/rifts.js'
+import { LoreSystem }      from './systems/lore.js'
+import { RiftSystem }      from './systems/rifts.js'
 import { PORTAL_FRAGMENTS } from './data/lore.js'
+import { PrestigeSystem }  from './systems/prestige.js'
+import { PRESTIGE_NODES }  from './data/prestige.js'
 
 // Callbacks inyectados desde game.js via UI.init()
 let _actions = {}
@@ -235,6 +237,7 @@ export const UI = {
     this.renderNextObjective(state)
     this.renderLorePanel(state)
     this.renderRift(state)
+    this.renderPrestige(state)
   },
 
   renderResources(state, abilityMult = 1) {
@@ -245,7 +248,7 @@ export const UI = {
     document.getElementById('stat-total-prod').textContent   = fmt(effectProd) + '/s'
     document.getElementById('stat-total-earned').textContent = fmt(state.totalEnergyEarned)
     document.getElementById('click-power').textContent       = fmt(Production.clickPower(state, baseProd))
-    document.getElementById('stat-offline-cap').textContent  = fmtTime(state.offlineCap)
+    document.getElementById('stat-offline-cap').textContent  = fmtTime(PrestigeSystem.getOfflineCapHours(state) * 3600)
     document.getElementById('stat-offline-eff').textContent  = Math.round(state.offlineEfficiency * 100) + '%'
   },
 
@@ -283,6 +286,17 @@ export const UI = {
     if (!card) return
     const upg      = UPGRADE_DATA.find(u => u.id === upgradeId)
     const purchased = !!state.upgrades[upgradeId]
+
+    // Ascended upgrades only visible when their prestige node is owned
+    if (upg.ascended) {
+      const nodeOwned = !!(state.prestige?.tree?.[upg.prestigeNode])
+      card.style.display = nodeOwned ? 'flex' : 'none'
+      if (nodeOwned) {
+        card.classList.toggle('purchased',   purchased)
+        card.classList.toggle('cant-afford', !purchased && !state.energy.gte(upg.cost))
+      }
+      return
+    }
 
     const visible = upg.portalId === 'click'
       ? state.unlocks.panelUpgrades
@@ -562,6 +576,128 @@ export const UI = {
       <span class="next-obj-title">${t('mission.' + next.id + '.title')}: ${t('mission.' + next.id + '.desc')}</span>
       <div class="next-obj-bar-wrap"><div class="next-obj-bar" style="width:${pct}%"></div></div>
     `
+  },
+
+  // ── Prestige panel ───────────────────────────────────────────────────────
+  renderPrestige(state) {
+    const section = document.getElementById('section-prestige')
+    if (!section) return
+
+    const check    = PrestigeSystem.canPrestige(state)
+    const liveFrags = check.type === 'early'
+      ? Math.round(PrestigeSystem.calcFragments(state) * 0.4)
+      : PrestigeSystem.calcFragments(state)
+    const runCount = state.prestige?.runCount || 0
+    const frags    = state.prestige?.fragments || 0
+    const total    = state.prestige?.totalEarned || 0
+
+    // Show section once any prestige portal condition is approaching (all 8 portals unlocked)
+    const anyUnlocked = ['ignea','abismal','temporal','vacio','celestial','caos','primordial','singular']
+      .every(id => state.unlocks['portal' + id[0].toUpperCase() + id.slice(1)])
+    if (!anyUnlocked && runCount === 0) { section.style.display = 'none'; return }
+    section.style.display = 'block'
+
+    const info = document.getElementById('prestige-info')
+    const tree = document.getElementById('prestige-tree')
+    if (!info || !tree) return
+
+    // ── Info bar ─────────────────────────────────────────────────────────
+    info.innerHTML = `
+      <div class="prestige-stats">
+        <span class="prestige-frags">${t('ui.prestige.fragments', { n: frags })}</span>
+        <span class="prestige-total">${t('ui.prestige.total_earned', { n: total })}</span>
+        ${runCount > 0 ? `<span class="prestige-runs">${t('ui.prestige.run_count', { n: runCount })}</span>` : ''}
+      </div>
+      <div class="prestige-live">
+        ${check.can
+          ? `<span class="prestige-live-frags">${t(check.type === 'early' ? 'ui.prestige.live_frags_early' : 'ui.prestige.live_frags', { n: liveFrags })}</span>`
+          : `<span class="prestige-locked-hint">${check.fragments > 0 ? t('ui.prestige.live_frags', { n: check.fragments }) + ' (not yet)' : ''}</span>`
+        }
+      </div>
+      ${check.can ? `<button class="btn-ascend" id="btn-ascend">${t('ui.prestige.ascend_btn')}</button>` : ''}
+      ${!check.can && runCount === 0 ? `<div class="prestige-req">${t(state.unlocks.portalSingular ? 'ui.prestige.locked_full' : 'ui.prestige.locked_early')}</div>` : ''}
+    `
+
+    if (check.can) {
+      document.getElementById('btn-ascend')?.addEventListener('click', () => _actions.prestige())
+    }
+
+    // ── Tree ─────────────────────────────────────────────────────────────
+    const branches = ['A', 'B', 'C', 'D']
+    const branchKeys = { A: 'ui.prestige.branch_a', B: 'ui.prestige.branch_b', C: 'ui.prestige.branch_c', D: 'ui.prestige.branch_d' }
+    tree.innerHTML = `<div class="prestige-tree-title">${t('ui.prestige.tree_title')}</div>`
+    branches.forEach(branch => {
+      const nodes = PRESTIGE_NODES.filter(n => n.branch === branch)
+      const branchEl = document.createElement('div')
+      branchEl.className = 'prestige-branch prestige-branch-' + branch.toLowerCase()
+      branchEl.innerHTML = `<div class="branch-label branch-${branch.toLowerCase()}">${t(branchKeys[branch])}</div>`
+      nodes.forEach(node => {
+        const status = node.auto
+          ? (state.prestige?.storyUnlocked?.includes(node.effect.chapter) ? 'owned' : 'locked')
+          : PrestigeSystem.getNodeStatus(state, node.id)
+        const nodeEl = document.createElement('div')
+        nodeEl.className = `prestige-node status-${status}`
+        const costStr = node.auto ? '' : t('ui.prestige.cost', { n: node.cost })
+        const statusStr = status === 'owned' ? (node.auto ? t('ui.prestige.auto') : t('ui.prestige.owned'))
+          : status === 'locked' ? (node.tier === 2 && (state.prestige?.runCount || 0) < 1 ? t('ui.prestige.tier2_locked') : '🔒')
+          : status === 'insufficient' ? costStr
+          : `<button class="btn-buy-node" data-node="${node.id}">${costStr}</button>`
+        nodeEl.innerHTML = `
+          <div class="node-name">${t('prestige.node.' + node.id + '.name')}</div>
+          <div class="node-desc">${t('prestige.node.' + node.id + '.desc')}</div>
+          <div class="node-status">${statusStr}</div>
+        `
+        branchEl.appendChild(nodeEl)
+      })
+      tree.appendChild(branchEl)
+    })
+
+    // Wire buy buttons
+    tree.querySelectorAll('.btn-buy-node').forEach(btn => {
+      btn.addEventListener('click', () => _actions.buyPrestigeNode(btn.dataset.node))
+    })
+  },
+
+  showPrestigeModal(state, onConfirm) {
+    const check  = PrestigeSystem.canPrestige(state)
+    if (!check.can) return
+
+    const frags  = check.fragments
+    const earned = `+${frags} ${t('ui.prestige.fragments', { n: frags }).replace(/^\💎\s*/, '')}`
+
+    const msg = document.createElement('div')
+    msg.className = 'prestige-modal-body'
+    msg.innerHTML = `
+      <div class="pm-title">${t('modal.prestige.title')}</div>
+      <div class="pm-section">${t('modal.prestige.run_summary')}</div>
+      <div class="pm-frags">${t('modal.prestige.frags_earn', { n: frags })}</div>
+      ${check.type === 'early' ? `<div class="pm-note">${t('modal.prestige.early_note')}</div>` : ''}
+      <hr class="pm-divider">
+      <div class="pm-row pm-reset">⚠ ${t('modal.prestige.resets')}</div>
+      <div class="pm-row pm-persist">✓ ${t('modal.prestige.persists')}</div>
+    `
+
+    const modal   = document.getElementById('confirm-modal')
+    const msgEl   = document.getElementById('confirm-modal-message')
+    const btnOk   = document.getElementById('confirm-modal-ok')
+    const btnCancel = document.getElementById('confirm-modal-cancel')
+    if (!modal || !msgEl) return
+
+    msgEl.innerHTML = ''
+    msgEl.appendChild(msg)
+    btnOk.textContent     = t('modal.prestige.confirm')
+    btnCancel.textContent = t('modal.prestige.cancel')
+    modal.style.display   = 'flex'
+
+    const cleanup = () => {
+      modal.style.display = 'none'
+      btnOk.textContent     = t('modal.confirm.ok')
+      btnCancel.textContent = t('modal.confirm.cancel')
+      btnOk.onclick     = null
+      btnCancel.onclick = null
+    }
+    btnOk.onclick     = () => { cleanup(); onConfirm() }
+    btnCancel.onclick = () => cleanup()
   },
 
   // ── Lore panel ───────────────────────────────────────────────────────────

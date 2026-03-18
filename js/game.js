@@ -22,6 +22,7 @@ import { Synergies }     from './systems/synergies.js'
 import { MissionSystem } from './systems/missions.js'
 import { LoreSystem }    from './systems/lore.js'
 import { RiftSystem }    from './systems/rifts.js'
+import { PrestigeSystem } from './systems/prestige.js'
 
 // ── Estado global ─────────────────────────────────────────────────────────────
 let state       = null
@@ -135,6 +136,9 @@ function loop(ts) {
     }
     UI.renderRift(state)
 
+    // Prestige live counter (updates every UI tick)
+    UI.renderPrestige(state)
+
     _lastUITick = ts
   }
 
@@ -178,10 +182,14 @@ function buyPortal(portalId) {
 
 function buyPortalN(portalId, n) {
   if (n <= 0) return false
-  const cost = portalCostN(portalId, n)
-  if (state.energy.lt(cost)) return false
 
-  state.energy = state.energy.sub(cost)
+  // C2: first portal of each type is free in a post-prestige run
+  const isFree = PrestigeSystem.hasFreeFirstPortal(state) && (state.portals[portalId] || 0) === 0
+  const costN  = isFree && n === 1 ? new Decimal(0) : portalCostN(portalId, isFree ? n - 1 : n)
+
+  if (state.energy.lt(costN)) return false
+
+  state.energy = state.energy.sub(costN)
   state.portals[portalId] = (state.portals[portalId] || 0) + n
   state.missions.daily.portalsBought   += n
   state.missions.weekly.portalsBought  += n
@@ -215,9 +223,11 @@ function buyUpgrade(upgradeId) {
     if (state.totalEnergyEarned.lt(upg.requiresEnergy)) return false
   }
 
-  if (state.energy.lt(upg.cost)) return false
+  const prestigeDisc = PrestigeSystem.getUpgradeCostDiscount(state)
+  const finalCost    = new Decimal(upg.cost).mul(1 - prestigeDisc)
+  if (state.energy.lt(finalCost)) return false
 
-  state.energy              = state.energy.sub(new Decimal(upg.cost))
+  state.energy              = state.energy.sub(finalCost)
   state.upgrades[upgradeId] = true
 
   UI.renderUpgradeCard(upgradeId, state)
@@ -278,6 +288,44 @@ function clickRift() {
   }
 }
 
+function prestige() {
+  const check = PrestigeSystem.canPrestige(state)
+  if (!check.can) return
+
+  UI.showPrestigeModal(state, () => {
+    const earned     = check.fragments
+    const runNumber  = (state.prestige?.runCount || 0) + 1
+    const newState   = createInitialState()
+    PrestigeSystem.applyReset(state, newState)
+    state = newState
+
+    UI.showNotification(
+      t('notif.prestige_done', { n: runNumber, frags: earned }),
+      'unlock'
+    )
+
+    RiftSystem.scheduleFirst(state)
+    UI.build()
+    UI.renderAll(state)
+    Tutorial._render(state)
+    UI.renderMissions(state)
+    UI.renderNextObjective(state)
+    UI.renderLorePanel(state)
+    Analytics.track('prestige', { runCount: runNumber, fragments: earned })
+    EventBus.emit('prestige', { runCount: runNumber })
+  })
+}
+
+function buyPrestigeNode(nodeId) {
+  const result = PrestigeSystem.buyNode(state, nodeId)
+  if (result.ok) {
+    const name = t('prestige.node.' + nodeId + '.name')
+    UI.showNotification(t('notif.prestige_node', { name }), 'unlock')
+    UI.renderPrestige(state)
+    // If c1 bought, offline cap updates immediately (already done inside buyNode → _applyNodeEffect)
+  }
+}
+
 async function reset() {
   const confirmed = await UI.showConfirm(t('modal.reset.message'))
   if (!confirmed) return
@@ -326,6 +374,8 @@ function init() {
     buyUpgrade,
     activateAbility,
     clickRift,
+    prestige,
+    buyPrestigeNode,
     reset,
     manualSave,
     getState:        () => state,
@@ -340,6 +390,7 @@ function init() {
   UI.renderMissions(state)
   UI.renderNextObjective(state)
   UI.renderLorePanel(state)
+  UI.renderPrestige(state)
 
   RiftSystem.scheduleFirst(state)
 
